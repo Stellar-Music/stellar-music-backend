@@ -60,6 +60,19 @@ export class PassService {
       ]
     );
 
+    // Record verified revenue into Revenue Pool (Level 3)
+    try {
+      const { settlementService } = await import('./settlement.service.js');
+      await settlementService.recordRevenueToPool(
+        verification.amount,
+        'XLM',
+        data.transaction_hash,
+        'MUSIC_PASS'
+      );
+    } catch (poolErr) {
+      console.warn('Could not record to revenue pool:', poolErr);
+    }
+
     const newPass = await this.getPassById(passId);
     return { success: true, pass: newPass || undefined };
   }

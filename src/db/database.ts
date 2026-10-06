@@ -243,5 +243,57 @@ export async function initDb(): Promise<void> {
     );
   `);
 
+  // Level 3 Tables
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS revenue_pools (
+      id TEXT PRIMARY KEY,
+      asset TEXT NOT NULL DEFAULT 'XLM',
+      total_amount REAL NOT NULL DEFAULT 0,
+      allocated_amount REAL NOT NULL DEFAULT 0,
+      unallocated_amount REAL NOT NULL DEFAULT 0,
+      source_type TEXT NOT NULL DEFAULT 'MUSIC_PASS',
+      source_tx_hash TEXT,
+      status TEXT NOT NULL DEFAULT 'OPEN',
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS settlements (
+      id TEXT PRIMARY KEY,
+      pool_id TEXT,
+      track_id TEXT NOT NULL,
+      agreement_id TEXT NOT NULL,
+      agreement_version INTEGER NOT NULL DEFAULT 1,
+      agreement_hash TEXT NOT NULL,
+      asset TEXT NOT NULL DEFAULT 'XLM',
+      gross_amount REAL NOT NULL,
+      status TEXT NOT NULL DEFAULT 'PENDING',
+      tx_hash TEXT,
+      failure_reason TEXT,
+      settled_at TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (track_id) REFERENCES tracks(id) ON DELETE CASCADE,
+      FOREIGN KEY (agreement_id) REFERENCES split_agreements(id) ON DELETE CASCADE
+    );
+  `);
+
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS settlement_recipients (
+      id TEXT PRIMARY KEY,
+      settlement_id TEXT NOT NULL,
+      wallet_address TEXT NOT NULL,
+      contributor_id TEXT,
+      role TEXT NOT NULL,
+      percentage REAL NOT NULL,
+      share_basis_points INTEGER NOT NULL,
+      expected_amount REAL NOT NULL,
+      actual_amount REAL NOT NULL,
+      status TEXT NOT NULL DEFAULT 'PENDING',
+      tx_hash TEXT,
+      FOREIGN KEY (settlement_id) REFERENCES settlements(id) ON DELETE CASCADE
+    );
+  `);
+
   console.log('✅ Database schema initialized successfully');
 }

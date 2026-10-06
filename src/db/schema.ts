@@ -127,3 +127,94 @@ export interface AgreementEvent {
   details: string;
   created_at: string;
 }
+
+// =========================================================================
+// LEVEL 3: REVENUE POOL & MULTI-RECIPIENT SETTLEMENT MODELS
+// =========================================================================
+
+export type RevenuePoolStatus = 'OPEN' | 'ALLOCATED' | 'SETTLED';
+
+export type SettlementStatus =
+  | 'PENDING'
+  | 'CALCULATED'
+  | 'READY'
+  | 'SUBMITTING'
+  | 'CONFIRMING'
+  | 'SETTLED'
+  | 'FAILED'
+  | 'RECONCILIATION_REQUIRED';
+
+export interface RevenuePool {
+  id: string;
+  asset: string;
+  total_amount: number;
+  allocated_amount: number;
+  unallocated_amount: number;
+  source_type: string;
+  source_tx_hash: string | null;
+  status: RevenuePoolStatus;
+  created_at: string;
+}
+
+export interface Settlement {
+  id: string;
+  pool_id: string;
+  track_id: string;
+  agreement_id: string;
+  agreement_version: number;
+  agreement_hash: string;
+  asset: string;
+  gross_amount: number;
+  status: SettlementStatus;
+  tx_hash: string | null;
+  failure_reason: string | null;
+  settled_at: string | null;
+  created_at: string;
+}
+
+export interface SettlementRecipient {
+  id: string;
+  settlement_id: string;
+  wallet_address: string;
+  contributor_id: string;
+  role: string;
+  percentage: number;
+  share_basis_points: number;
+  expected_amount: number;
+  actual_amount: number;
+  status: 'PENDING' | 'SETTLED' | 'FAILED';
+  tx_hash: string | null;
+}
+
+export interface ContributorEarningsSummary {
+  wallet_address: string;
+  total_earned: number;
+  pending_revenue: number;
+  settled_revenue: number;
+  tracks: Array<{
+    track_id: string;
+    track_title: string;
+    role: string;
+    percentage: number;
+    pending: number;
+    settled: number;
+    latest_tx_hash: string | null;
+  }>;
+}
+
+export interface ArtistRevenueSummary {
+  artist_wallet: string;
+  total_revenue: number;
+  pending_settlement: number;
+  settled_revenue: number;
+  tracks: Array<{
+    track_id: string;
+    track_title: string;
+    total_revenue: number;
+    pending: number;
+    settled: number;
+    agreement_version: number;
+    is_locked: boolean;
+  }>;
+}
+
