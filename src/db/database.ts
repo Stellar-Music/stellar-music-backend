@@ -187,5 +187,61 @@ export async function initDb(): Promise<void> {
     );
   `);
 
+  // Level 2 Tables
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS split_agreements (
+      id TEXT PRIMARY KEY,
+      track_id TEXT NOT NULL,
+      version INTEGER NOT NULL DEFAULT 1,
+      status TEXT NOT NULL DEFAULT 'DRAFT',
+      agreement_hash TEXT NOT NULL,
+      created_by TEXT NOT NULL,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      locked_at TEXT,
+      FOREIGN KEY (track_id) REFERENCES tracks(id) ON DELETE CASCADE
+    );
+  `);
+
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS split_contributors (
+      id TEXT PRIMARY KEY,
+      agreement_id TEXT NOT NULL,
+      wallet_address TEXT NOT NULL,
+      display_name TEXT NOT NULL,
+      role TEXT NOT NULL,
+      percentage REAL NOT NULL,
+      share_basis_points INTEGER NOT NULL,
+      has_signed INTEGER NOT NULL DEFAULT 0,
+      signed_at TEXT,
+      signature_ref TEXT,
+      FOREIGN KEY (agreement_id) REFERENCES split_agreements(id) ON DELETE CASCADE
+    );
+  `);
+
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS split_signatures (
+      id TEXT PRIMARY KEY,
+      agreement_id TEXT NOT NULL,
+      contributor_id TEXT NOT NULL,
+      wallet_address TEXT NOT NULL,
+      signature_hash TEXT NOT NULL,
+      signed_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (agreement_id) REFERENCES split_agreements(id) ON DELETE CASCADE,
+      FOREIGN KEY (contributor_id) REFERENCES split_contributors(id) ON DELETE CASCADE
+    );
+  `);
+
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS agreement_events (
+      id TEXT PRIMARY KEY,
+      agreement_id TEXT NOT NULL,
+      event_type TEXT NOT NULL,
+      performed_by TEXT NOT NULL,
+      details TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (agreement_id) REFERENCES split_agreements(id) ON DELETE CASCADE
+    );
+  `);
+
   console.log('✅ Database schema initialized successfully');
 }

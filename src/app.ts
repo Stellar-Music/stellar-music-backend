@@ -8,6 +8,7 @@ import { passRouter } from './routes/pass.routes.js';
 import { streamingRouter } from './routes/streaming.routes.js';
 import { blockchainRouter } from './routes/blockchain.routes.js';
 import { walletRouter } from './routes/wallet.routes.js';
+import { splitRouter } from './routes/split.routes.js';
 
 // Configure reliable DNS resolution for Stellar Horizon Testnet
 try {
@@ -43,6 +44,7 @@ app.use('/api/passes', passRouter);
 app.use('/api/streams', streamingRouter);
 app.use('/api/transactions', blockchainRouter);
 app.use('/api/wallet', walletRouter);
+app.use('/api', splitRouter);
 
 // Central error handler
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
