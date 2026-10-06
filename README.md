@@ -1,5 +1,7 @@
 # 🎵 Stellar Music — Backend (`stellar-music-backend`)
 
+> **🚀 Live Web Application**: [https://stellar-music-app.netlify.app](https://stellar-music-app.netlify.app)
+
 Application API, streaming infrastructure, and Stellar payment reconciliation engine for **Stellar Music**.
 
 ## 📌 Architectural Responsibility & Core Principle
