@@ -12,6 +12,11 @@ describe('Level 2: Revenue Split Agreements Integration Tests', () => {
   beforeAll(async () => {
     await initDb();
     await seedDatabase();
+    const db = await getDb();
+    await db.execute('DELETE FROM split_signatures');
+    await db.execute('DELETE FROM agreement_events');
+    await db.execute('DELETE FROM split_contributors');
+    await db.execute('DELETE FROM split_agreements');
   });
 
   afterAll(async () => {
