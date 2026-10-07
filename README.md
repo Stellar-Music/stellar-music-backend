@@ -165,18 +165,26 @@ Provides open inspection of track revenue pools, active locked agreements, zero-
 
 ## 🧮 Settlement Math & Rounding Invariant
 
-Settlements use integer arithmetic in Stellar stroops ($1\text{ XLM} = 10{,}000{,}000\text{ stroops}$):
+Settlements use strict integer arithmetic in Stellar stroops (`1 XLM = 10,000,000 stroops`) to eliminate any floating-point rounding errors:
 
-1. **Gross Conversion**: $\text{gross\_stroops} = \text{round}(\text{amount\_xlm} \times 10{,}000{,}000)$
-2. **Basis Points Distribution**: $\text{expected\_amount}_i = \lfloor \frac{\text{gross\_stroops} \times \text{bps}_i}{10000} \rfloor$
-3. **Remainder Dust Preservation**:
-   $$\text{dust} = \text{gross\_stroops} - \sum_{i=0}^{n-1} \text{expected\_amount}_i$$
-   $$\text{actual\_amount}_0 = \text{expected\_amount}_0 + \text{dust}$$
+```text
+1. Gross Conversion:
+   gross_stroops = round(amount_xlm * 10,000,000)
+
+2. Basis Points Distribution:
+   expected_amount[i] = floor(gross_stroops * bps[i] / 10,000)
+
+3. Remainder Dust Preservation (Zero Rounding Leak):
+   dust = gross_stroops - sum(expected_amount[0..n-1])
+   actual_amount[0] = expected_amount[0] + dust
+
+   Invariant: sum(actual_amount[0..n-1]) == gross_stroops
+```
 
 This mathematical invariant guarantees:
-* Zero stroop rounding loss
-* Exact ledger matching
-* Complete distribution of revenue pool funds
+* **Zero Stroop Rounding Loss**: Every single stroop ingested into the revenue pool is accounted for and disbursed.
+* **Exact Ledger Matching**: Total recipient transfers match gross revenue pool deductions to the exact integer.
+* **Complete Distribution**: No unallocated dust is trapped or stranded on-chain.
 
 ---
 
