@@ -133,31 +133,31 @@ Serves catalog metadata and delivers authenticated HTTP 206 Partial Content byte
 
 ---
 
-### 2. Level 1 — Payment Verification & Replay Protection (`POST /api/passes`)
+### 2. Payment Verification & Replay Protection (`POST /api/passes`)
 Verifies Horizon payment hashes, asserts destination wallet and price match, prevents replay attacks, and issues non-custodial passes.
 ![Music Pass Purchase Modal](docs/screenshots/02_music_pass_modal.png)
 
 ---
 
-### 3. Level 2 — Collaborator Revenue Split Studio (`POST /api/tracks/:id/splits`)
+### 3. Collaborator Revenue Split Studio (`POST /api/tracks/:id/splits`)
 Validates exact 10,000 basis points, tracks cryptographic signatures, computes SHA-256 agreement hashes, and locks agreements upon unanimous approval.
 ![Revenue Split Studio & Agreement Status](docs/screenshots/03_revenue_split_studio.png)
 
 ---
 
-### 4. Level 3 — Contributor Royalty Accounting (`GET /api/earnings/contributor/:wallet`)
+### 4. Contributor Royalty Accounting (`GET /api/earnings/contributor/:wallet`)
 Calculates real-time lifetime earnings, pending pool royalties, and settled balances with linked Stellar Expert transaction hashes.
 ![Contributor Royalty & Earnings Dashboard](docs/screenshots/04_contributor_earnings.png)
 
 ---
 
-### 5. Level 3 — Artist Automated Settlement Engine (`POST /api/settlements/run`)
+### 5. Automated Multi-Recipient Settlement Engine (`POST /api/settlements/run`)
 Ingests streaming revenue into per-track pools, computes multi-recipient allocations, executes Stellar settlements, and broadcasts real-time SSE updates.
 ![Artist Revenue & Automated Settlement Engine](docs/screenshots/05_artist_revenue_engine.png)
 
 ---
 
-### 6. Level 3 — Track Revenue Auditor (`GET /api/revenue/track/:trackId`)
+### 6. Public Track Revenue Auditor (`GET /api/revenue/track/:trackId`)
 Provides open inspection of track revenue pools, active locked agreements, zero-leak remainder stroop dust allocations, and verified payout ledgers.
 ![Track Revenue & Settlement Auditor](docs/screenshots/06_track_revenue_audit.png)
 
@@ -236,3 +236,14 @@ npm run dev
 # Start production server
 npm start
 ```
+
+---
+
+## 🌐 Network & Ecosystem Links
+
+* **Live Web Application**: [https://stellar-music-app.netlify.app](https://stellar-music-app.netlify.app)
+* **Frontend Web Application Repo**: [Stellar-Music/stellar-music-frontend](https://github.com/Stellar-Music/stellar-music-frontend)
+* **Smart Contracts Repo**: [Stellar-Music/stellar-music-contracts](https://github.com/Stellar-Music/stellar-music-contracts)
+* **Backend API & Settlement Engine Repo**: [Stellar-Music/stellar-music-backend](https://github.com/Stellar-Music/stellar-music-backend)
+* **Stellar Horizon Testnet**: [https://horizon-testnet.stellar.org](https://horizon-testnet.stellar.org)
+* **Stellar Testnet Explorer**: [Stellar Expert Explorer](https://stellar.expert/explorer/testnet)

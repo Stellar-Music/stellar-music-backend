@@ -112,7 +112,7 @@ export class SettlementService {
     const lockedSplit = await splitService.getActiveLockedSplit(trackId);
     if (!lockedSplit) {
       throw new Error(
-        `NO_LOCKED_AGREEMENT: Track ${trackId} does not have an active LOCKED revenue split agreement. Level 2 agreement must be locked before settlement.`
+        `NO_LOCKED_AGREEMENT: Track ${trackId} does not have an active LOCKED revenue split agreement. The split agreement must be signed by all parties and locked before settlement.`
       );
     }
 
