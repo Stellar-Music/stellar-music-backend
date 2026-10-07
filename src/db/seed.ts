@@ -33,7 +33,7 @@ export async function seedDatabase() {
     await db.execute(
       `INSERT INTO artists (id, wallet_address, display_name, bio)
        VALUES ($1, $2, $3, $4)
-       ON CONFLICT (id) DO NOTHING`,
+       ON CONFLICT (id) DO UPDATE SET wallet_address = excluded.wallet_address, display_name = excluded.display_name, bio = excluded.bio`,
       [a.id, a.wallet_address, a.display_name, a.bio]
     );
 

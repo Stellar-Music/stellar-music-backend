@@ -52,7 +52,7 @@ The backend manages catalog metadata, authenticated range audio delivery, crypto
 | `POST` | `/api/settlements/run` | Executes automated batch settlement across all eligible tracks with locked splits and pending revenue. |
 | `GET` | `/api/settlements` | Queries global settlement ledger with recipient breakdowns. |
 | `GET` | `/api/settlements/:id` | Fetches single settlement receipt and recipient payment allocations. |
-| `POST` | `/api/settlements/reconcile/:id` | Reconciles settlement status and transaction hash against Stellar Horizon. |
+| `GET` | `/api/settlements/reconcile/:id` | Reconciles settlement status and transaction hash against Stellar Horizon. |
 | `GET` | `/api/revenue/pools` | Queries all active track revenue pools and balances. |
 | `GET` | `/api/revenue/track/:trackId` | Audits gross revenue pool, locked split agreement, and settlement receipts for a track. |
 | `GET` | `/api/earnings/contributor/:wallet` | Contributor Earnings Dashboard: total earned, pending, settled, and per-track allocations. |
@@ -80,10 +80,86 @@ The backend manages catalog metadata, authenticated range audio delivery, crypto
 | `GET` | `/api/tracks/:id` | Fetches single track metadata. |
 | `POST` | `/api/tracks/upload` | Multipart file upload for audio and artwork files. |
 | `POST` | `/api/tracks` | Publishes track metadata to catalog. |
-| `POST` | `/api/passes/verify` | Verifies Stellar Testnet transaction hash, prevents replay, and issues Music Pass. |
+| `POST` | `/api/passes` | Verifies Stellar Testnet transaction hash, prevents replay, and issues Music Pass. |
 | `GET` | `/api/passes?wallet=G...` | Lists active music passes owned by a wallet. |
-| `GET` | `/api/stream/:trackId` | Authenticated HTTP 206 Partial Content range stream for unlocked tracks. |
-| `POST` | `/api/stream/heartbeat` | Records listening duration and streaming session heartbeats. |
+| `GET` | `/api/passes/check/:trackId/:wallet` | Verifies whether a wallet holds a valid access pass for a track. |
+| `GET` | `/api/tracks/:id/stream` | Authenticated HTTP 206 Partial Content range stream for unlocked tracks. |
+| `POST` | `/api/streams/start` | Initiates an authenticated streaming playback session. |
+| `POST` | `/api/streams/:id/heartbeat` | Records listening duration and session heartbeat for active streams. |
+| `POST` | `/api/streams/:id/end` | Ends an active playback session. |
+| `GET` | `/api/streams` | Queries listening session history with optional track and listener filters. |
+
+---
+
+## 🛑 API Error Handling & Status Codes
+
+All API endpoints return errors in a standardized JSON payload structure:
+
+```json
+{
+  "success": false,
+  "error": "Descriptive human-readable error explanation."
+}
+```
+
+### Standard HTTP Error Codes
+
+| Status Code | Error Message Pattern | Scenario & Root Cause |
+| :---: | :--- | :--- |
+| **`400 Bad Request`** | `"Invalid basis points: shares must total 10000"` | Split agreement allocation does not equal exactly 100.00%. |
+| **`400 Bad Request`** | `"Duplicate contributor wallet in agreement"` | Same Stellar address provided for multiple roles in one split. |
+| **`400 Bad Request`** | `"Agreement is already LOCKED"` | Attempted to sign or edit an immutable agreement version. |
+| **`400 Bad Request`** | `"wallet_address is required."` | Missing required wallet query or body parameter. |
+| **`400 Bad Request`** | `"Audio file is required."` | Missing multipart file upload payload. |
+| **`402 Payment Required`** | `"A confirmed Music Pass is required to stream this track."` | Listener attempted to access stream without a verified on-chain pass. |
+| **`403 Forbidden`** | `"Caller is not a registered recipient on this agreement."` | Wallet attempted to sign an agreement where it is not listed. |
+| **`404 Not Found`** | `"Track not found"` | Track ID does not exist in the database. |
+| **`404 Not Found`** | `"Agreement not found"` | Split agreement ID does not exist for the specified track. |
+| **`404 Not Found`** | `"Audio file not found on server."` | Audio file reference does not exist on the file storage system. |
+| **`409 Conflict`** | `"Replay detected: Transaction hash has already been redeemed."` | The Stellar transaction hash has already been used to issue a Music Pass. |
+| **`412 Precondition Failed`** | `"Cannot settle: Agreement must be in LOCKED status."` | Settlement attempted before all required contributors signed. |
+| **`416 Range Not Satisfiable`** | `"Requested range not satisfiable"` | HTTP Range header exceeds file byte boundaries. |
+| **`500 Internal Error`** | `"Stellar Horizon RPC execution failure"` | Upstream network error when submitting or reconciling on Stellar. |
+
+---
+
+## 📸 Product Functionality Walkthrough
+
+The backend powers the streaming delivery, payment verification, and automated settlement engine:
+
+### 1. Music Discovery Catalog & Range Audio Delivery
+Serves catalog metadata and delivers authenticated HTTP 206 Partial Content byte streams to unlocked listeners.
+![Music Discovery & Persistent Audio Player](docs/screenshots/01_music_discovery.png)
+
+---
+
+### 2. Level 1 — Payment Verification & Replay Protection (`POST /api/passes`)
+Verifies Horizon payment hashes, asserts destination wallet and price match, prevents replay attacks, and issues non-custodial passes.
+![Music Pass Purchase Modal](docs/screenshots/02_music_pass_modal.png)
+
+---
+
+### 3. Level 2 — Collaborator Revenue Split Studio (`POST /api/tracks/:id/splits`)
+Validates exact 10,000 basis points, tracks cryptographic signatures, computes SHA-256 agreement hashes, and locks agreements upon unanimous approval.
+![Revenue Split Studio & Agreement Status](docs/screenshots/03_revenue_split_studio.png)
+
+---
+
+### 4. Level 3 — Contributor Royalty Accounting (`GET /api/earnings/contributor/:wallet`)
+Calculates real-time lifetime earnings, pending pool royalties, and settled balances with linked Stellar Expert transaction hashes.
+![Contributor Royalty & Earnings Dashboard](docs/screenshots/04_contributor_earnings.png)
+
+---
+
+### 5. Level 3 — Artist Automated Settlement Engine (`POST /api/settlements/run`)
+Ingests streaming revenue into per-track pools, computes multi-recipient allocations, executes Stellar settlements, and broadcasts real-time SSE updates.
+![Artist Revenue & Automated Settlement Engine](docs/screenshots/05_artist_revenue_engine.png)
+
+---
+
+### 6. Level 3 — Track Revenue Auditor (`GET /api/revenue/track/:trackId`)
+Provides open inspection of track revenue pools, active locked agreements, zero-leak remainder stroop dust allocations, and verified payout ledgers.
+![Track Revenue & Settlement Auditor](docs/screenshots/06_track_revenue_audit.png)
 
 ---
 
