@@ -4,8 +4,7 @@
 [![Stellar Testnet Contract](https://img.shields.io/badge/Soroban_Contract-CBUNX6PF...-brightgreen?style=for-the-badge&logo=stellar)](https://stellar.expert/explorer/testnet/contract/CBUNX6PF4OOFGQ434IBVCLRBR6OBQOM5PTYUES7X6KSN2AIER6VMJK7K)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![Tests](https://img.shields.io/badge/Backend%20Tests-89%2F89%20Passing-emerald?style=for-the-badge)](https://github.com/Stellar-Music/stellar-music-backend)
-[![Release](https://img.shields.io/badge/Release-v1.1.0--wave-blueviolet?style=for-the-badge)](https://github.com/Stellar-Music/stellar-music-backend/releases/tag/v1.1.0-wave)
-[![Drips Wave Appeal](https://img.shields.io/badge/Drips%20Wave-Appeal%20Dossier-blue?style=for-the-badge)](https://github.com/Stellar-Music/stellar-music-contracts/blob/main/docs/DRIPS_WAVE_APPEAL.md)
+[![Release](https://img.shields.io/badge/Release-v1.1.0-blueviolet?style=for-the-badge)](https://github.com/Stellar-Music/stellar-music-backend/releases/tag/v1.1.0-wave)
 [![CI Status](https://img.shields.io/badge/CI%20Build-Passing-brightgreen?style=for-the-badge&logo=githubactions)](https://github.com/Stellar-Music/stellar-music-backend/actions)
 
 The production API, streaming accounting, and automated Stellar settlement reconciliation engine for **Stellar Music**.
@@ -23,7 +22,6 @@ Stellar Music is engineered as a three-tier decentralized streaming application:
 | **[`stellar-music-frontend`](https://github.com/Stellar-Music/stellar-music-frontend)** | Reactive Web3 player, PWA, Freighter wallet connector | React 18 / TypeScript / Vite / Tailwind | **Live** | **130 / 130** |
 
 * **Total Protocol Automated Tests**: **253 / 253 passing** across contracts, backend, and frontend.
-* **Official Drips Wave Appeal Dossier**: [`docs/DRIPS_WAVE_APPEAL.md`](https://github.com/Stellar-Music/stellar-music-contracts/blob/main/docs/DRIPS_WAVE_APPEAL.md)
 * **Live Production dApp**: [https://stellar-music-app.netlify.app](https://stellar-music-app.netlify.app)
 
 ---
