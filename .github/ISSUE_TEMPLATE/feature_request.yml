@@ -1,0 +1,22 @@
+name: "Feature Request / Endpoint Proposal"
+description: "Suggest an improvement or feature for the Stellar Music backend service"
+title: "[API Feature]: "
+labels: ["enhancement", "backend"]
+body:
+  - type: markdown
+    attributes:
+      value: "Thanks for proposing an enhancement to the Stellar Music backend service!"
+  - type: textarea
+    id: problem
+    attributes:
+      label: "Feature Context"
+      description: "What streaming, accounting, or reconciliation feature does this address?"
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: "Proposed Solution"
+      description: "Describe the proposed API routes, schema changes, or service logic."
+    validations:
+      required: true
