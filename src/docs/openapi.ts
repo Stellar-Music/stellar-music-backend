@@ -7,7 +7,7 @@ export const openApiSpec = {
   openapi: '3.0.3',
   info: {
     title: 'Stellar Music Core API',
-    version: '1.2.0',
+    version: '1.2.1',
     description:
       'Decentralized audio streaming platform on Stellar & Soroban. Provides cryptographic access passes, non-custodial streaming accounting, and automated multi-party revenue settlements.',
     contact: {
