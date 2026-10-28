@@ -6,9 +6,11 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
+    "typecheck": "tsc --noEmit",
     "start": "node dist/index.js",
     "test": "vitest run --fileParallelism=false",
     "test:coverage": "vitest run --coverage --fileParallelism=false",
+    "audit:deps": "npm audit --audit-level=high",
     "seed": "tsx src/db/seed.ts"
   },
   "dependencies": {
