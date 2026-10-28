@@ -6,6 +6,38 @@ import { trackService } from '../services/track.service.js';
 export const settlementRouter = Router();
 
 /**
+ * GET /api/revenue/pending
+ * Pending revenue summary across tracks or filtered by contributor wallet
+ */
+settlementRouter.get('/revenue/pending', async (req: Request, res: Response) => {
+  try {
+    const wallet = req.query.wallet as string | undefined;
+    const summary = await settlementService.getPendingRevenue(wallet);
+    res.json({ success: true, data: summary });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+/**
+ * GET /api/settlements/export
+ * Download settlements history as an RFC 4180 CSV export
+ */
+settlementRouter.get('/settlements/export', async (req: Request, res: Response) => {
+  try {
+    const trackId = req.query.track_id as string | undefined;
+    const csvData = await settlementService.exportSettlementsCsv(trackId);
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="stellar-music-settlements.csv"');
+    res.status(200).send(csvData);
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+
+/**
  * POST /api/settlements/run
  * Trigger automated settlement cycle across all eligible tracks
  */

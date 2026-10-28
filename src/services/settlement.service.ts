@@ -527,6 +527,115 @@ export class SettlementService {
 
     return { settlement, recipients };
   }
+
+  /**
+   * Get pending unsettled revenue summary
+   */
+  async getPendingRevenue(wallet?: string): Promise<{
+    wallet?: string;
+    total_pending_xlm: number;
+    pending_tracks: Array<{
+      track_id: string;
+      title: string;
+      pending_xlm: number;
+      contributor_share_pct?: number;
+    }>;
+  }> {
+    const db = await getDb();
+    const tracks = await trackService.getTracks();
+    let totalPending = 0;
+    const pendingTracks: Array<{
+      track_id: string;
+      title: string;
+      pending_xlm: number;
+      contributor_share_pct?: number;
+    }> = [];
+
+    for (const track of tracks) {
+      const passes = await db.queryOne<{ count: number; total: number }>(
+        "SELECT COUNT(*) as count, COALESCE(SUM(payment_amount), 0) as total FROM music_passes WHERE track_id = $1 AND status = 'CONFIRMED'",
+        [track.id]
+      );
+      const gross = Number(passes?.total || 0);
+
+      const settlements = await db.queryOne<{ total: number }>(
+        'SELECT COALESCE(SUM(gross_amount), 0) as total FROM settlements WHERE track_id = $1',
+        [track.id]
+      );
+      const settled = Number(settlements?.total || 0);
+      const trackPending = Math.max(0, gross - settled);
+
+      if (trackPending > 0) {
+        if (wallet) {
+          const split = await splitService.getActiveLockedSplit(track.id);
+          const contributor = split?.contributors.find(
+            (c) => c.wallet_address.toUpperCase() === wallet.toUpperCase()
+          );
+          if (contributor) {
+            const share = (trackPending * contributor.percentage) / 100;
+            totalPending += share;
+            pendingTracks.push({
+              track_id: track.id,
+              title: track.title,
+              pending_xlm: share,
+              contributor_share_pct: contributor.percentage,
+            });
+          }
+        } else {
+          totalPending += trackPending;
+          pendingTracks.push({
+            track_id: track.id,
+            title: track.title,
+            pending_xlm: trackPending,
+          });
+        }
+      }
+    }
+
+    return {
+      wallet,
+      total_pending_xlm: totalPending,
+      pending_tracks: pendingTracks,
+    };
+  }
+
+  /**
+   * Export verified settlement receipts as RFC 4180 CSV
+   */
+  async exportSettlementsCsv(trackId?: string): Promise<string> {
+    const settlements = await this.getSettlements(trackId);
+    const headers = [
+      'Settlement ID',
+      'Track ID',
+      'Pool ID',
+      'Asset',
+      'Gross Amount',
+      'Status',
+      'Stellar Tx Hash',
+      'Settled At',
+      'Created At',
+    ];
+
+    const rows = settlements.map((s) => [
+      s.id,
+      s.track_id,
+      s.pool_id,
+      s.asset,
+      s.gross_amount.toFixed(4),
+      s.status,
+      s.tx_hash || 'N/A',
+      s.settled_at || 'N/A',
+      s.created_at,
+    ]);
+
+    const csvLines = [
+      headers.join(','),
+      ...rows.map((r) => r.map((field) => '"' + String(field).replace(/"/g, '""') + '"').join(',')),
+    ];
+
+    return csvLines.join('\n');
+  }
 }
 
 export const settlementService = new SettlementService();
+
