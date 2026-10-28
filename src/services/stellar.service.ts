@@ -12,20 +12,59 @@ export interface VerifiedPaymentResult {
 }
 
 export class StellarService {
-  private horizonUrl: string;
+  private endpoints: string[];
+  private activeIndex: number = 0;
 
-  constructor() {
-    this.horizonUrl = process.env.STELLAR_HORIZON_URL || 'https://horizon-testnet.stellar.org';
+  constructor(endpoints?: string[]) {
+    if (endpoints && endpoints.length > 0) {
+      this.endpoints = endpoints;
+    } else {
+      const primary = process.env.STELLAR_HORIZON_URL || 'https://horizon-testnet.stellar.org';
+      const fallback = process.env.STELLAR_HORIZON_FALLBACK_URL || 'https://rpc-testnet.stellar.org';
+      this.endpoints = [primary, fallback];
+    }
+  }
+
+  getRpcStatus(): { activeEndpoint: string; endpoints: string[] } {
+    return {
+      activeEndpoint: this.endpoints[this.activeIndex],
+      endpoints: [...this.endpoints],
+    };
+  }
+
+  private async fetchWithFailover(path: string): Promise<Response | null> {
+    const total = this.endpoints.length;
+
+    for (let i = 0; i < total; i++) {
+      const base = this.endpoints[this.activeIndex];
+      const url = `${base}${path}`;
+      try {
+        const res = await fetch(url);
+        if (res.status >= 500 && i < total - 1) {
+          const prev = base;
+          this.activeIndex = (this.activeIndex + 1) % total;
+          console.warn(`[StellarService] Horizon HTTP ${res.status}. Switching from ${prev} to ${this.endpoints[this.activeIndex]}`);
+          continue;
+        }
+        return res;
+      } catch {
+        if (i < total - 1) {
+          const prev = base;
+          this.activeIndex = (this.activeIndex + 1) % total;
+          console.warn(`[StellarService] Horizon network error. Switching from ${prev} to ${this.endpoints[this.activeIndex]}`);
+        }
+      }
+    }
+    return null;
   }
 
   /**
-   * Fetch transaction from Horizon Testnet
+   * Fetch transaction from Horizon Testnet with failover
    */
   async getTransaction(hash: string): Promise<any> {
     try {
-      const url = `${this.horizonUrl}/transactions/${hash}`;
-      const res = await fetch(url);
-      if (!res.ok) {
+      const res = await this.fetchWithFailover(`/transactions/${hash}`);
+      if (!res || !res.ok) {
         return null;
       }
       return await res.json();
@@ -35,13 +74,12 @@ export class StellarService {
   }
 
   /**
-   * Fetch operations for a transaction from Horizon Testnet
+   * Fetch operations for a transaction from Horizon Testnet with failover
    */
   async getTransactionOperations(hash: string): Promise<any[]> {
     try {
-      const url = `${this.horizonUrl}/transactions/${hash}/operations`;
-      const res = await fetch(url);
-      if (!res.ok) {
+      const res = await this.fetchWithFailover(`/transactions/${hash}/operations`);
+      if (!res || !res.ok) {
         return [];
       }
       const data = (await res.json()) as any;

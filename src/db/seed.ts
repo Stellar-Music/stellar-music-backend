@@ -11,7 +11,7 @@ export async function seedDatabase() {
   const artists = [
     {
       id: 'artist-1',
-      wallet_address: 'GC5PXQ4QWYNWK2XYUWVYBCKDADXKU7EJA4H3UOLZJ5R7JWJBQDIIQIIM',
+      wallet_address: 'GASTRALDRIFT7777777777777777777777777777777777777777',
       display_name: 'Astral Drift',
       bio: 'Pioneering interstellar synthwave and cosmic soundscapes on the Stellar ledger.',
     },
