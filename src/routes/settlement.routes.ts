@@ -36,7 +36,6 @@ settlementRouter.get('/settlements/export', async (req: Request, res: Response) 
   }
 });
 
-
 /**
  * POST /api/settlements/run
  * Trigger automated settlement cycle across all eligible tracks
@@ -192,23 +191,38 @@ settlementRouter.get('/earnings/artist/:wallet', async (req: Request, res: Respo
 });
 
 /**
- * GET /api/realtime/events
- * Server-Sent Events stream for realtime settlement & earnings updates
+ * GET /api/realtime/events and /api/events
+ * Server-Sent Events stream for realtime settlement & earnings updates with proxy keepalive
  */
-settlementRouter.get('/realtime/events', (req: Request, res: Response) => {
+const sseHandler = (req: Request, res: Response) => {
   res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
   res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no');
   res.flushHeaders();
 
-  // Send initial connected ping
+  // Send initial connected event
   res.write(`data: ${JSON.stringify({ type: 'CONNECTED', timestamp: new Date().toISOString() })}\n\n`);
+
+  // Keepalive ping to prevent proxy/load balancer timeouts
+  const pingInterval = parseInt(process.env.SSE_PING_INTERVAL_MS || '15000', 10);
+  const keepAliveTimer = setInterval(() => {
+    try {
+      res.write(`: keepalive-ping ${new Date().toISOString()}\n\n`);
+    } catch {
+      clearInterval(keepAliveTimer);
+    }
+  }, pingInterval);
 
   const unsubscribe = settlementService.subscribe((event) => {
     res.write(`data: ${JSON.stringify(event)}\n\n`);
   });
 
   req.on('close', () => {
+    clearInterval(keepAliveTimer);
     unsubscribe();
   });
-});
+};
+
+settlementRouter.get('/realtime/events', sseHandler);
+settlementRouter.get('/events', sseHandler);
