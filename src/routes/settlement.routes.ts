@@ -29,7 +29,7 @@ settlementRouter.get('/settlements/export', async (req: Request, res: Response) 
     const csvData = await settlementService.exportSettlementsCsv(trackId);
 
     res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', 'attachment; filename="stellar-music-settlements.csv"');
+    res.setHeader('Content-Disposition', 'attachment; filename="stellar-music-settlements-export.csv"');
     res.status(200).send(csvData);
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message });
