@@ -7,23 +7,23 @@ export async function seedDatabase() {
 
   console.log('🌱 Seeding Stellar Music database...');
 
-  // 1. Seed Artists
+  // 1. Seed Artists with cryptographically valid Stellar Testnet ed25519 public keys
   const artists = [
     {
       id: 'artist-1',
-      wallet_address: 'GASTRALDRIFT7777777777777777777777777777777777777777',
+      wallet_address: 'GC5PXQ4QWYNWK2XYUWVYBCKDADXKU7EJA4H3UOLZJ5R7JWJBQDIIQIIM',
       display_name: 'Astral Drift',
       bio: 'Pioneering interstellar synthwave and cosmic soundscapes on the Stellar ledger.',
     },
     {
       id: 'artist-2',
-      wallet_address: 'GNOVAPULSE22222222222222222222222222222222222222222',
+      wallet_address: 'GDFW3FFFKOM5UUZI3DA4NEELV5VMENLYMYMLCKL73RO4IKI27CKRISDA',
       display_name: 'Nova Pulse',
       bio: 'Deep ambient electronic melodies crafted for late-night focused exploration.',
     },
     {
       id: 'artist-3',
-      wallet_address: 'GBU7M3L62RTR6YXZZ2WOD6W7G3D7JGBWUXR7G7C3T3G2Z7C66Q4',
+      wallet_address: 'GBNNXJVSF7CCVGLXX7ZMTT6UKQG6SVBTVCPJOHBQ75X3VQBROG6DRJ3A',
       display_name: 'King Taiwo',
       bio: 'Afrobeats and melodic grooves merging African rhythms with decentralized Web3 music.',
     },
@@ -115,6 +115,33 @@ export async function seedDatabase() {
         t.duration_seconds,
       ]
     );
+  }
+
+  // 3. Seed Split Agreement for track-1
+  try {
+    const agreementId = 'split-agreement-track-1';
+    await db.execute(
+      `INSERT INTO split_agreements (id, track_id, total_shares_bps, status, contract_address)
+       VALUES ($1, $2, 10000, 'LOCKED', 'CA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVWGS')
+       ON CONFLICT (id) DO NOTHING`,
+      [agreementId, 'track-1']
+    );
+
+    await db.execute(
+      `INSERT INTO split_recipients (id, agreement_id, recipient_address, share_bps, role)
+       VALUES ($1, $2, $3, 7000, 'ARTIST')
+       ON CONFLICT (id) DO NOTHING`,
+      [uuidv4(), agreementId, 'GC5PXQ4QWYNWK2XYUWVYBCKDADXKU7EJA4H3UOLZJ5R7JWJBQDIIQIIM']
+    );
+
+    await db.execute(
+      `INSERT INTO split_recipients (id, agreement_id, recipient_address, share_bps, role)
+       VALUES ($1, $2, $3, 3000, 'PRODUCER')
+       ON CONFLICT (id) DO NOTHING`,
+      [uuidv4(), agreementId, 'GDMOIEKSXEYS3S2HCICU3BVE5EGZWOIJE4KQIZEHX5ZOOTU2IVKDFJ26']
+    );
+  } catch {
+    // Ignore split table errors if tables are created later in migration flow
   }
 
   console.log('✅ Seed completed: 3 artists and 4 tracks ready.');
