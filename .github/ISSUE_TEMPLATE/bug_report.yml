@@ -1,0 +1,36 @@
+name: "Bug Report"
+description: "File a bug report for the Stellar Music backend API & streaming service"
+title: "[API Bug]: "
+labels: ["bug", "backend", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: "Thanks for reporting an issue with the backend service!"
+  - type: input
+    id: endpoint
+    attributes:
+      label: "API Endpoint & Method"
+      description: "E.g. GET /api/streams/track-1, POST /api/passes"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: "Describe the bug"
+      description: "A clear description of the bug or unexpected API response."
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: "Steps to Reproduce / Request Payload"
+      description: "Provide the request curl command or JSON body."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: "Expected Response"
+      description: "HTTP status code and expected JSON structure."
+    validations:
+      required: true
