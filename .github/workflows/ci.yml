@@ -22,7 +22,7 @@ jobs:
       - name: Security Vulnerability Audit
         run: npm audit --audit-level=high
 
-      - name: TypeScript Strict Typecheck
+      - name: Strict TypeScript Compiler Verification
         run: npx tsc --noEmit
 
       - name: Run Test Suite
