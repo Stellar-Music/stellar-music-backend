@@ -1,0 +1,22 @@
+# Auto detect text files and perform LF normalization on checkin
+* text=auto eol=lf
+
+# Force specific text file types to LF
+*.ts text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.sql text eol=lf
+*.sh text eol=lf
+.env* text eol=lf
+
+# Binary file declarations
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.mp3 binary
+*.wav binary
+*.ogg binary
+*.wasm binary
