@@ -14,6 +14,7 @@ import { blockchainRouter } from './routes/blockchain.routes.js';
 import { walletRouter } from './routes/wallet.routes.js';
 import { splitRouter } from './routes/split.routes.js';
 import { settlementRouter } from './routes/settlement.routes.js';
+import { docsRouter } from './docs/openapi.js';
 
 // Configure reliable DNS resolution for Stellar Horizon Testnet
 try {
@@ -45,7 +46,8 @@ app.use(apiLimiter);
 // Correlation tracing ID injection
 app.use(requestIdMiddleware);
 
-app.use(cors({ origin: '*' }));
+const allowedOrigins = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',').map(s => s.trim()) : '*';
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json());
 
 // Serve uploaded audio and artwork files
@@ -54,6 +56,7 @@ app.use('/uploads', express.static(uploadsPath));
 
 // Health check endpoints
 app.use('/api', healthRouter);
+app.use('/api', docsRouter);
 
 // Core API Routes
 app.use('/api/tracks', trackRouter);
