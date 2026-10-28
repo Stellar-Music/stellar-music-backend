@@ -1,7 +1,11 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import { rateLimit } from 'express-rate-limit';
 import path from 'node:path';
 import dns from 'node:dns';
+import { requestIdMiddleware } from './middleware/requestId.js';
+import { healthRouter } from './routes/health.routes.js';
 import { trackRouter } from './routes/track.routes.js';
 import { artistRouter } from './routes/artist.routes.js';
 import { passRouter } from './routes/pass.routes.js';
@@ -14,11 +18,32 @@ import { settlementRouter } from './routes/settlement.routes.js';
 // Configure reliable DNS resolution for Stellar Horizon Testnet
 try {
   dns.setServers(['8.8.8.8', '1.1.1.1']);
-} catch (e) {
+} catch {
   // Ignore in environments where setting DNS is restricted
 }
 
 export const app = express();
+
+// Security headers with permissive resource policy for audio media streaming
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    contentSecurityPolicy: false,
+  })
+);
+
+// Request rate limiting: 1000 requests per 15 minutes per IP
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 1000,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests from this IP, please try again later.' },
+});
+app.use(apiLimiter);
+
+// Correlation tracing ID injection
+app.use(requestIdMiddleware);
 
 app.use(cors({ origin: '*' }));
 app.use(express.json());
@@ -27,18 +52,10 @@ app.use(express.json());
 const uploadsPath = path.join(process.cwd(), 'uploads');
 app.use('/uploads', express.static(uploadsPath));
 
-// Health check endpoint
-app.get('/api/health', (_req, res) => {
-  res.json({
-    status: 'online',
-    service: 'stellar-music-backend',
-    version: '1.0.0',
-    network: 'Stellar Testnet',
-    timestamp: new Date().toISOString(),
-  });
-});
+// Health check endpoints
+app.use('/api', healthRouter);
 
-// API Routes
+// Core API Routes
 app.use('/api/tracks', trackRouter);
 app.use('/api/artists', artistRouter);
 app.use('/api/passes', passRouter);
