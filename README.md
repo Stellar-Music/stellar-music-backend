@@ -256,17 +256,19 @@ npm test
 npm run build
 ```
 
-All 23 backend tests execute cleanly with zero errors:
-* Core health checks and error handlers
-* Range audio streaming and 206 Partial Content delivery
-* Payment verification and transaction replay prevention
-* Split agreement creation, 10,000 basis points validation, and duplicate rejection
-* Multi-party agreement signing, rejection, and atomic lock transition
-* Revenue pool ingestion from verified Music Pass payments
-* Integer-exact stroop multi-recipient settlement calculation and remainder dust allocation
-* Track settlement execution and automated batch execution
-* Contributor and artist earnings aggregations
-* Blockchain reconciliation with Stellar Horizon
+All 92 automated tests across 19 test suites execute cleanly with zero errors:
+* Core database and Horizon RPC health probes (`tests/health_endpoints_integration.test.ts`, `tests/health_and_security.test.ts`)
+* Dual-endpoint Stellar Horizon failover pool resilience (`tests/stellar_failover.test.ts`)
+* Authenticated range audio chunk delivery with HTTP 206 Partial Content (`tests/range_parser.test.ts`, `tests/range_parser_edge_cases.test.ts`)
+* Streaming token lifecycle, HMAC validation, and access permission gates (`tests/streaming_token.test.ts`, `tests/streaming_token_lifecycle.test.ts`)
+* Paywall bypass protection and static audio download blocking (`tests/streaming_security.test.ts`)
+* Payment verification on Stellar Testnet and transaction replay defense (`tests/api.test.ts`)
+* Track catalog CRUD operations, metadata handling, and file uploads (`tests/track_crud_integration.test.ts`)
+* Revenue split agreements, 10,000 basis points invariant, and multi-contributor approvals (`tests/splits.test.ts`, `tests/split_agreements_integration.test.ts`)
+* Automated revenue settlement calculations, remainder dust assignment, and ledger recording (`tests/settlements.test.ts`, `tests/settlement_history_integration.test.ts`)
+* Zero-stroop precision proof across 10,000 randomized split simulations (`tests/stroop_math_invariant.test.ts`)
+* Schema validation depth and input sanitization (`tests/validators.test.ts`, `tests/schema_validation_depth.test.ts`, `tests/validation_endpoints.test.ts`)
+* Memory leak containment under high concurrency (`tests/memory_leak.test.ts`)
 
 ---
 
