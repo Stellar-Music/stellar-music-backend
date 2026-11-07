@@ -6,7 +6,7 @@ export interface StreamTokenPayload {
   expiresAt: number; // Unix timestamp in seconds
 }
 
-const DEFAULT_SECRET = process.env.STREAM_SECRET_KEY || 'stellar-music-default-hmac-secret-key-32chars!';
+const DEFAULT_SECRET = process.env.STREAM_SECRET_KEY || crypto.randomBytes(32).toString('hex');
 const DEFAULT_TTL_SECONDS = 3600; // 1 hour
 
 export function generateStreamToken(

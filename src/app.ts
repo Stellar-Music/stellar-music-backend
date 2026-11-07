@@ -52,6 +52,19 @@ app.use(express.json());
 
 // Serve uploaded audio and artwork files
 const uploadsPath = path.join(process.cwd(), 'uploads');
+// Protect audio files from direct unauthenticated static access
+const AUDIO_EXTENSIONS = new Set(['.mp3', '.wav', '.flac', '.ogg', '.m4a', '.aac', '.opus']);
+app.use('/uploads', (req, res, next) => {
+  const ext = path.extname(req.path).toLowerCase();
+  if (AUDIO_EXTENSIONS.has(ext)) {
+    return res.status(403).json({
+      success: false,
+      error: 'DIRECT_AUDIO_ACCESS_FORBIDDEN',
+      message: 'Direct audio file downloads are prohibited. Audio must be streamed via authenticated streaming endpoints.',
+    });
+  }
+  next();
+});
 app.use('/uploads', express.static(uploadsPath));
 
 // Health check endpoints

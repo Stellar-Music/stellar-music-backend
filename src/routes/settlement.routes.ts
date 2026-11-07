@@ -69,7 +69,7 @@ settlementRouter.post('/settlements/track/:trackId', async (req: Request, res: R
     const result = await settlementService.executeTrackSettlement(trackId, parseFloat(amount), pool_id);
     res.status(201).json({
       success: true,
-      message: 'Settlement executed and verified on Stellar Testnet.',
+      message: 'Settlement executed and recorded in protocol ledger.',
       data: result,
     });
   } catch (err: any) {

@@ -22,7 +22,8 @@ try {
 } catch (err: any) {
   if (err instanceof z.ZodError) {
     console.error('❌ Fatal: Environment variable validation failed:');
-    err.errors.forEach((e) => {
+    const issues = err.issues || (err as any).errors || [];
+    issues.forEach((e: any) => {
       console.error(`  - ${e.path.join('.')}: ${e.message}`);
     });
     process.exit(1);

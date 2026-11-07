@@ -6,6 +6,7 @@ import { TrackService } from '../services/track.service.js';
 import { generateStreamToken } from '../services/streamingToken.js';
 import { parseByteRange } from '../services/rangeParser.js';
 import { mediaCacheMiddleware } from '../middleware/mediaCache.js';
+import { authStreamMiddleware } from '../middleware/authStream.js';
 
 const trackService = new TrackService();
 export const streamingRouter = Router();
@@ -22,6 +23,20 @@ streamingRouter.post('/token', async (req: Request, res: Response) => {
         success: false,
         error: 'Missing required fields: track_id, wallet_address',
       });
+    }
+
+    const track = await trackService.getTrackById(track_id);
+    if (track && track.price > 0) {
+      const access = await streamingService.checkAccess(track_id, wallet_address);
+      if (!access.hasAccess) {
+        return res.status(403).json({
+          success: false,
+          error: 'MUSIC_PASS_REQUIRED',
+          message: 'A confirmed Music Pass is required to generate a streaming token for this track.',
+          track_id,
+          price: access.price,
+        });
+      }
     }
 
     const ttl = ttl_seconds ? parseInt(ttl_seconds, 10) : 3600;
@@ -44,7 +59,7 @@ streamingRouter.post('/token', async (req: Request, res: Response) => {
  * GET /api/streams/:trackId/play
  * Stream audio chunks with HTTP 206 Partial Content and Range header support
  */
-streamingRouter.get('/:trackId/play', mediaCacheMiddleware(), async (req: Request, res: Response) => {
+streamingRouter.get('/:trackId/play', authStreamMiddleware, mediaCacheMiddleware(), async (req: Request, res: Response) => {
   try {
     const { trackId } = req.params;
     const track = await trackService.getTrackById(trackId);

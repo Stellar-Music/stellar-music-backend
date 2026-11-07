@@ -8,10 +8,11 @@ export function validateBody(schema: ZodSchema) {
       next();
     } catch (err: any) {
       if (err instanceof ZodError) {
+        const issuesList = err.issues || (err as any).errors || [];
         res.status(400).json({
           success: false,
           error: 'Validation failed',
-          issues: err.errors.map((e) => ({
+          issues: issuesList.map((e: any) => ({
             field: e.path.join('.'),
             message: e.message,
           })),
@@ -26,14 +27,15 @@ export function validateBody(schema: ZodSchema) {
 export function validateQuery(schema: ZodSchema) {
   return (req: Request, res: Response, next: NextFunction): void => {
     try {
-      req.query = schema.parse(req.query);
+      req.query = schema.parse(req.query) as any;
       next();
     } catch (err: any) {
       if (err instanceof ZodError) {
+        const issuesList = err.issues || (err as any).errors || [];
         res.status(400).json({
           success: false,
           error: 'Query parameter validation failed',
-          issues: err.errors.map((e) => ({
+          issues: issuesList.map((e: any) => ({
             field: e.path.join('.'),
             message: e.message,
           })),

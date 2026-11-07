@@ -178,14 +178,17 @@ export class StellarService {
           }
         }
       } else if (op.type === 'invoke_host_function') {
-        // Soroban contract invocation payment
-        matchedOp = {
-          amount: expectedPrice.toString(),
-          asset_type: 'native',
-          from: tx.source_account,
-          to: expectedArtistWallet,
-        };
-        break;
+        // Soroban contract invocation payment: verify transaction or operation initiator matches purchaser
+        const opSource = op.source_account || tx.source_account;
+        if (!expectedPurchaser || opSource.toUpperCase() === expectedPurchaser.toUpperCase()) {
+          matchedOp = {
+            amount: expectedPrice.toString(),
+            asset_type: 'native',
+            from: opSource,
+            to: expectedArtistWallet,
+          };
+          break;
+        }
       }
     }
 
