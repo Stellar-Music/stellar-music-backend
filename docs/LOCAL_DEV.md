@@ -21,48 +21,61 @@ This document walks you through spinning up the backend API, configuring databas
 ## 2. Quickstart
 
 ### Step 1: Install Dependencies
+
 ```bash
 npm install
 ```
 
 ### Step 2: Environment Configuration
+
 Copy the documented `.env.example` file to `.env`:
+
 ```bash
 cp .env.example .env
 ```
 
 Key environment configurations:
-| Variable | Default Value | Description |
-|---|---|---|
-| `PORT` | `3001` | Express HTTP server port |
-| `NODE_ENV` | `development` | Runtime environment mode |
-| `DATABASE_URL` | `postgres://postgres:postgres@localhost:5432/stellar_music` | PostgreSQL connection URI |
-| `STELLAR_NETWORK` | `TESTNET` | `TESTNET` or `PUBLIC` |
-| `STELLAR_HORIZON_URL`| `https://horizon-testnet.stellar.org` | Primary Stellar Horizon node |
-| `STELLAR_HORIZON_FALLBACK_URL` | `https://testnet.stellar.org` | Secondary failover RPC node |
-| `STREAM_SECRET_KEY` | *(32+ char secret)* | Secret key for signing audio access HMACs |
+
+| Variable                       | Default Value                                               | Description                               |
+| ------------------------------ | ----------------------------------------------------------- | ----------------------------------------- |
+| `PORT`                         | `3001`                                                      | Express HTTP server port                  |
+| `NODE_ENV`                     | `development`                                               | Runtime environment mode                  |
+| `DATABASE_URL`                 | `postgres://postgres:postgres@localhost:5432/stellar_music` | PostgreSQL connection URI                 |
+| `STELLAR_NETWORK`              | `TESTNET`                                                   | `TESTNET` or `PUBLIC`                     |
+| `STELLAR_HORIZON_URL`          | `https://horizon-testnet.stellar.org`                       | Primary Stellar Horizon node              |
+| `STELLAR_HORIZON_FALLBACK_URL` | `https://testnet.stellar.org`                               | Secondary failover RPC node               |
+| `STREAM_SECRET_KEY`            | _(32+ char secret)_                                         | Secret key for signing audio access HMACs |
 
 ### Step 3: Launch PostgreSQL Database
+
 Start the containerized PostgreSQL database with health checks:
+
 ```bash
 docker compose up -d
 ```
+
 Verify container status:
+
 ```bash
 docker compose ps
 ```
 
 ### Step 4: Seed Database Catalog
+
 Populate the database with Afrobeats, Synthwave, and Lo-Fi testnet demo tracks and split agreements:
+
 ```bash
 npm run seed
 ```
 
 ### Step 5: Start Development Server
+
 ```bash
 npm run dev
 ```
+
 The server will boot on `http://localhost:3001`.
+
 - OpenAPI documentation: `http://localhost:3001/api/docs`
 - Health check: `http://localhost:3001/api/health`
 - Readiness check: `http://localhost:3001/api/health/ready`

@@ -33,13 +33,21 @@ export const upload = multer({
       if (ALLOWED_AUDIO_EXTENSIONS.includes(ext)) {
         cb(null, true);
       } else {
-        cb(new Error(`Invalid audio format: ${ext}. Allowed extensions: ${ALLOWED_AUDIO_EXTENSIONS.join(', ')}`));
+        cb(
+          new Error(
+            `Invalid audio format: ${ext}. Allowed extensions: ${ALLOWED_AUDIO_EXTENSIONS.join(', ')}`
+          )
+        );
       }
     } else if (file.fieldname === 'artwork') {
       if (ALLOWED_IMAGE_EXTENSIONS.includes(ext)) {
         cb(null, true);
       } else {
-        cb(new Error(`Invalid artwork format: ${ext}. Allowed extensions: ${ALLOWED_IMAGE_EXTENSIONS.join(', ')}`));
+        cb(
+          new Error(
+            `Invalid artwork format: ${ext}. Allowed extensions: ${ALLOWED_IMAGE_EXTENSIONS.join(', ')}`
+          )
+        );
       }
     } else {
       cb(null, true);

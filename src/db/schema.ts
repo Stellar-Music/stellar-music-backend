@@ -4,12 +4,7 @@ export type StreamingSessionStatus = 'ACTIVE' | 'COMPLETED' | 'ABORTED';
 export type TransactionStatus = 'CONFIRMED' | 'PENDING' | 'FAILED';
 
 export type SplitAgreementStatus =
-  | 'DRAFT'
-  | 'AWAITING_SIGNATURES'
-  | 'PARTIALLY_SIGNED'
-  | 'LOCKED'
-  | 'REJECTED'
-  | 'SUPERSEDED';
+  'DRAFT' | 'AWAITING_SIGNATURES' | 'PARTIALLY_SIGNED' | 'LOCKED' | 'REJECTED' | 'SUPERSEDED';
 
 export interface User {
   id: string;
@@ -83,7 +78,7 @@ export interface SplitAgreement {
   version: number;
   status: SplitAgreementStatus;
   agreement_hash: string; // Deterministic SHA-256 of agreement terms
-  created_by: string;     // Creator's Stellar wallet
+  created_by: string; // Creator's Stellar wallet
   created_at: string;
   locked_at: string | null;
 }
@@ -93,8 +88,8 @@ export interface SplitContributor {
   agreement_id: string;
   wallet_address: string;
   display_name: string;
-  role: string;          // Artist, Producer, Songwriter, Composer, Engineer, Label, etc.
-  percentage: number;    // e.g. 50.0 (sum must equal 100.0)
+  role: string; // Artist, Producer, Songwriter, Composer, Engineer, Label, etc.
+  percentage: number; // e.g. 50.0 (sum must equal 100.0)
   share_basis_points: number; // 5000 (sum must equal 10000)
   has_signed: boolean;
   signed_at: string | null;
@@ -217,4 +212,3 @@ export interface ArtistRevenueSummary {
     is_locked: boolean;
   }>;
 }
-

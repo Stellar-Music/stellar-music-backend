@@ -107,7 +107,9 @@ trackRouter.post('/', async (req: Request, res: Response) => {
 
     const priceNum = typeof price === 'number' ? price : parseFloat(price || '0');
     if (isNaN(priceNum) || priceNum < 0) {
-      return res.status(400).json({ success: false, error: 'Price must be a non-negative number.' });
+      return res
+        .status(400)
+        .json({ success: false, error: 'Price must be a non-negative number.' });
     }
 
     const track = await trackService.createTrack({

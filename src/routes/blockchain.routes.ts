@@ -31,7 +31,9 @@ blockchainRouter.get('/:hash', async (req: Request, res: Response) => {
     // Otherwise check Horizon Testnet live
     const horizonTx = await stellarService.getTransaction(hash);
     if (!horizonTx) {
-      return res.status(404).json({ success: false, error: 'Transaction not found on Stellar Testnet' });
+      return res
+        .status(404)
+        .json({ success: false, error: 'Transaction not found on Stellar Testnet' });
     }
 
     const ops = await stellarService.getTransactionOperations(hash);

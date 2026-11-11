@@ -13,7 +13,9 @@ async function bootstrap() {
     const db = await getDb();
 
     // Check if initial seed is needed
-    const existing = await db.queryOne<{ count: string | number }>('SELECT COUNT(*) as count FROM tracks');
+    const existing = await db.queryOne<{ count: string | number }>(
+      'SELECT COUNT(*) as count FROM tracks'
+    );
     const count = parseInt(String(existing?.count || '0'), 10);
     if (count === 0) {
       await seedDatabase();

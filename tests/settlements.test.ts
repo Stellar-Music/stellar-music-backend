@@ -40,9 +40,7 @@ describe('Level 3: Automated Revenue Settlement Engine Tests', () => {
   });
 
   it('rejects settlement when track has no active LOCKED split agreement', async () => {
-    const res = await request(app)
-      .post('/api/settlements/track/track-1')
-      .send({ amount: 50 });
+    const res = await request(app).post('/api/settlements/track/track-1').send({ amount: 50 });
 
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
@@ -56,9 +54,24 @@ describe('Level 3: Automated Revenue Settlement Engine Tests', () => {
       .send({
         created_by_wallet: artistWallet,
         contributors: [
-          { wallet_address: artistWallet, display_name: 'Astral Drift', role: 'Artist', percentage: 50 },
-          { wallet_address: producerWallet, display_name: 'Nova Producer', role: 'Producer', percentage: 30 },
-          { wallet_address: songwriterWallet, display_name: 'Stellar Lyricist', role: 'Songwriter', percentage: 20 },
+          {
+            wallet_address: artistWallet,
+            display_name: 'Astral Drift',
+            role: 'Artist',
+            percentage: 50,
+          },
+          {
+            wallet_address: producerWallet,
+            display_name: 'Nova Producer',
+            role: 'Producer',
+            percentage: 30,
+          },
+          {
+            wallet_address: songwriterWallet,
+            display_name: 'Stellar Lyricist',
+            role: 'Songwriter',
+            percentage: 20,
+          },
         ],
       });
 
@@ -66,8 +79,12 @@ describe('Level 3: Automated Revenue Settlement Engine Tests', () => {
     const agreementId = createRes.body.data.agreement.id;
 
     // 2. Both required contributors sign -> Agreement LOCKS
-    await request(app).post(`/api/splits/${agreementId}/sign`).send({ contributor_wallet: producerWallet });
-    const signRes = await request(app).post(`/api/splits/${agreementId}/sign`).send({ contributor_wallet: songwriterWallet });
+    await request(app)
+      .post(`/api/splits/${agreementId}/sign`)
+      .send({ contributor_wallet: producerWallet });
+    const signRes = await request(app)
+      .post(`/api/splits/${agreementId}/sign`)
+      .send({ contributor_wallet: songwriterWallet });
     expect(signRes.body.data.isLocked).toBe(true);
 
     // 3. Level 3: Execute settlement for 100 XLM
@@ -99,9 +116,7 @@ describe('Level 3: Automated Revenue Settlement Engine Tests', () => {
 
   it('guarantees integer-exact remainder handling with zero leakage on odd splits', async () => {
     // Settle 33.33 XLM across the 50/30/20 split
-    const res = await request(app)
-      .post('/api/settlements/track/track-1')
-      .send({ amount: 33.33 });
+    const res = await request(app).post('/api/settlements/track/track-1').send({ amount: 33.33 });
 
     expect(res.status).toBe(201);
     const recipients = res.body.data.recipients;

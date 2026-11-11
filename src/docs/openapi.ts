@@ -116,9 +116,7 @@ export const openApiSpec = {
       get: {
         summary: 'Export settlements history as CSV',
         tags: ['Settlements'],
-        parameters: [
-          { name: 'format', in: 'query', schema: { type: 'string', default: 'csv' } },
-        ],
+        parameters: [{ name: 'format', in: 'query', schema: { type: 'string', default: 'csv' } }],
         responses: {
           '200': {
             description: 'CSV file download of settlement history',
@@ -131,9 +129,7 @@ export const openApiSpec = {
       get: {
         summary: 'Get pending unsettled revenue summary',
         tags: ['Settlements'],
-        parameters: [
-          { name: 'wallet', in: 'query', schema: { type: 'string' } },
-        ],
+        parameters: [{ name: 'wallet', in: 'query', schema: { type: 'string' } }],
         responses: {
           '200': { description: 'Pending revenue allocations' },
         },

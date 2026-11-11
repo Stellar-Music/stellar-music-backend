@@ -40,7 +40,10 @@ export function verifyStreamToken(
       return { valid: false, error: 'Streaming token expired' };
     }
     const expectedPayload = `${trackId}:${walletAddress}:${expiresAtStr}`;
-    const expectedSignature = crypto.createHmac('sha256', secret).update(expectedPayload).digest('hex');
+    const expectedSignature = crypto
+      .createHmac('sha256', secret)
+      .update(expectedPayload)
+      .digest('hex');
     const valid = crypto.timingSafeEqual(
       Buffer.from(signature, 'hex'),
       Buffer.from(expectedSignature, 'hex')

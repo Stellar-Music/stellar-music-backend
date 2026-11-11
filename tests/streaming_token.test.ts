@@ -19,7 +19,9 @@ describe('HMAC Streaming Token Service Tests', () => {
   it('rejects tampered stream tokens with invalid HMAC', () => {
     const token = generateStreamToken(trackId, walletAddress, 3600);
     const decoded = Buffer.from(token, 'base64url').toString('utf8');
-    const tampered = Buffer.from(decoded.replace(trackId, 'track-hacked-999')).toString('base64url');
+    const tampered = Buffer.from(decoded.replace(trackId, 'track-hacked-999')).toString(
+      'base64url'
+    );
 
     const verified = verifyStreamToken(tampered);
     expect(verified.valid).toBe(false);

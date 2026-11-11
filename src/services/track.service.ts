@@ -3,12 +3,14 @@ import { Track, TrackStatus } from '../db/schema.js';
 import { v4 as uuidv4 } from 'uuid';
 
 export class TrackService {
-  async getTracks(options: {
-    status?: TrackStatus;
-    genre?: string;
-    artistId?: string;
-    search?: string;
-  } = {}): Promise<(Track & { artist_name: string; artist_wallet: string })[]> {
+  async getTracks(
+    options: {
+      status?: TrackStatus;
+      genre?: string;
+      artistId?: string;
+      search?: string;
+    } = {}
+  ): Promise<(Track & { artist_name: string; artist_wallet: string })[]> {
     const db = await getDb();
     let query = `
       SELECT t.*, a.display_name AS artist_name, a.wallet_address AS artist_wallet
@@ -42,7 +44,9 @@ export class TrackService {
     return await db.query(query, params);
   }
 
-  async getTrackById(id: string): Promise<(Track & { artist_name: string; artist_wallet: string }) | null> {
+  async getTrackById(
+    id: string
+  ): Promise<(Track & { artist_name: string; artist_wallet: string }) | null> {
     const db = await getDb();
     const query = `
       SELECT t.*, a.display_name AS artist_name, a.wallet_address AS artist_wallet

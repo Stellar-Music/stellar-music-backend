@@ -30,9 +30,24 @@ describe('Level 2: Revenue Split Agreements Integration Tests', () => {
       .send({
         created_by_wallet: artistWallet,
         contributors: [
-          { wallet_address: artistWallet, display_name: 'Astral Drift', role: 'Artist', percentage: 50 },
-          { wallet_address: producerWallet, display_name: 'Nova Producer', role: 'Producer', percentage: 30 },
-          { wallet_address: songwriterWallet, display_name: 'Stellar Lyricist', role: 'Songwriter', percentage: 20 },
+          {
+            wallet_address: artistWallet,
+            display_name: 'Astral Drift',
+            role: 'Artist',
+            percentage: 50,
+          },
+          {
+            wallet_address: producerWallet,
+            display_name: 'Nova Producer',
+            role: 'Producer',
+            percentage: 30,
+          },
+          {
+            wallet_address: songwriterWallet,
+            display_name: 'Stellar Lyricist',
+            role: 'Songwriter',
+            percentage: 20,
+          },
         ],
       });
 
@@ -44,10 +59,14 @@ describe('Level 2: Revenue Split Agreements Integration Tests', () => {
     expect(res.body.data.contributors.length).toBe(3);
 
     // Artist creator should be auto-signed
-    const artistContrib = res.body.data.contributors.find((c: any) => c.wallet_address === artistWallet);
+    const artistContrib = res.body.data.contributors.find(
+      (c: any) => c.wallet_address === artistWallet
+    );
     expect(artistContrib.has_signed).toBe(true);
 
-    const producerContrib = res.body.data.contributors.find((c: any) => c.wallet_address === producerWallet);
+    const producerContrib = res.body.data.contributors.find(
+      (c: any) => c.wallet_address === producerWallet
+    );
     expect(producerContrib.has_signed).toBe(false);
   });
 
@@ -58,7 +77,12 @@ describe('Level 2: Revenue Split Agreements Integration Tests', () => {
         created_by_wallet: artistWallet,
         contributors: [
           { wallet_address: artistWallet, display_name: 'Artist', role: 'Artist', percentage: 50 },
-          { wallet_address: producerWallet, display_name: 'Producer', role: 'Producer', percentage: 40 },
+          {
+            wallet_address: producerWallet,
+            display_name: 'Producer',
+            role: 'Producer',
+            percentage: 40,
+          },
           // Total = 90%
         ],
       });
@@ -75,7 +99,12 @@ describe('Level 2: Revenue Split Agreements Integration Tests', () => {
         created_by_wallet: artistWallet,
         contributors: [
           { wallet_address: artistWallet, display_name: 'Artist', role: 'Artist', percentage: 50 },
-          { wallet_address: artistWallet, display_name: 'Artist Again', role: 'Producer', percentage: 50 },
+          {
+            wallet_address: artistWallet,
+            display_name: 'Artist Again',
+            role: 'Producer',
+            percentage: 50,
+          },
         ],
       });
 
@@ -91,8 +120,18 @@ describe('Level 2: Revenue Split Agreements Integration Tests', () => {
       .send({
         created_by_wallet: artistWallet,
         contributors: [
-          { wallet_address: artistWallet, display_name: 'Main Artist', role: 'Artist', percentage: 60 },
-          { wallet_address: producerWallet, display_name: 'Lead Producer', role: 'Producer', percentage: 40 },
+          {
+            wallet_address: artistWallet,
+            display_name: 'Main Artist',
+            role: 'Artist',
+            percentage: 60,
+          },
+          {
+            wallet_address: producerWallet,
+            display_name: 'Lead Producer',
+            role: 'Producer',
+            percentage: 40,
+          },
         ],
       });
 
@@ -101,12 +140,10 @@ describe('Level 2: Revenue Split Agreements Integration Tests', () => {
     expect(createRes.body.data.agreement.status).toBe('AWAITING_SIGNATURES');
 
     // 2. Producer signs
-    const signRes = await request(app)
-      .post(`/api/splits/${agreementId}/sign`)
-      .send({
-        contributor_wallet: producerWallet,
-        signature_ref: 'tx_signature_ref_testnet_123',
-      });
+    const signRes = await request(app).post(`/api/splits/${agreementId}/sign`).send({
+      contributor_wallet: producerWallet,
+      signature_ref: 'tx_signature_ref_testnet_123',
+    });
 
     expect(signRes.status).toBe(200);
     expect(signRes.body.success).toBe(true);

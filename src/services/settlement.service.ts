@@ -10,6 +10,7 @@ import {
 } from '../db/schema.js';
 import { splitService } from './split.service.js';
 import { trackService } from './track.service.js';
+import { STELLAR_MUSIC_CONTRACT_ID } from './stellar.service.js';
 
 type RealtimeListener = (event: any) => void;
 
@@ -61,7 +62,9 @@ export class SettlementService {
          VALUES ($1, $2, $3, 0, $4, $5, $6, 'OPEN', $7)`,
         [poolId, cleanAsset, amount, amount, sourceType, sourceTxHash, now]
       );
-      pool = (await db.queryOne<RevenuePool>('SELECT * FROM revenue_pools WHERE id = $1', [poolId]))!;
+      pool = (await db.queryOne<RevenuePool>('SELECT * FROM revenue_pools WHERE id = $1', [
+        poolId,
+      ]))!;
     } else {
       const newTotal = pool.total_amount + amount;
       const newUnallocated = pool.unallocated_amount + amount;
@@ -71,7 +74,9 @@ export class SettlementService {
          WHERE id = $4`,
         [newTotal, newUnallocated, sourceTxHash || pool.source_tx_hash, pool.id]
       );
-      pool = (await db.queryOne<RevenuePool>('SELECT * FROM revenue_pools WHERE id = $1', [pool.id]))!;
+      pool = (await db.queryOne<RevenuePool>('SELECT * FROM revenue_pools WHERE id = $1', [
+        pool.id,
+      ]))!;
     }
 
     this.broadcast({
@@ -145,7 +150,7 @@ export class SettlementService {
     const settlementId = uuidv4();
     const now = new Date().toISOString();
 
-    const txHashPayload = `${settlementId}:${agreement.id}:${agreement.agreement_hash}:${grossAmount}:${now}`;
+    const txHashPayload = `soroban:${STELLAR_MUSIC_CONTRACT_ID}:${settlementId}:${agreement.id}:${agreement.agreement_hash}:${grossAmount}:${now}`;
     const txHash = crypto.createHash('sha256').update(txHashPayload).digest('hex');
 
     // 4. Record settlement entity
@@ -206,7 +211,9 @@ export class SettlementService {
 
     // 6. Update revenue pool balances if poolId was specified
     if (poolId) {
-      const pool = await db.queryOne<RevenuePool>('SELECT * FROM revenue_pools WHERE id = $1', [poolId]);
+      const pool = await db.queryOne<RevenuePool>('SELECT * FROM revenue_pools WHERE id = $1', [
+        poolId,
+      ]);
       if (pool) {
         const newAllocated = pool.allocated_amount + grossAmount;
         const newUnallocated = Math.max(0, pool.unallocated_amount - grossAmount);
@@ -259,11 +266,14 @@ export class SettlementService {
 
     for (const item of tracksWithRevenue) {
       // Check already settled amount for track
-      const settledRow = await db.queryOne<{ settled_rev: number }>(`
+      const settledRow = await db.queryOne<{ settled_rev: number }>(
+        `
         SELECT COALESCE(SUM(gross_amount), 0) as settled_rev
         FROM settlements
         WHERE track_id = $1 AND status = 'SETTLED'
-      `, [item.track_id]);
+      `,
+        [item.track_id]
+      );
 
       const alreadySettled = settledRow ? settledRow.settled_rev : 0;
       const pendingToSettle = Math.max(0, item.total_rev - alreadySettled);
@@ -310,10 +320,9 @@ export class SettlementService {
     recipients_verified: number;
   }> {
     const db = await getDb();
-    const settlement = await db.queryOne<Settlement>(
-      'SELECT * FROM settlements WHERE id = $1',
-      [settlementId]
-    );
+    const settlement = await db.queryOne<Settlement>('SELECT * FROM settlements WHERE id = $1', [
+      settlementId,
+    ]);
 
     if (!settlement) throw new Error('Settlement not found.');
 
@@ -352,13 +361,16 @@ export class SettlementService {
       percentage: number;
       amount: number;
       tx_hash: string;
-    }>(`
+    }>(
+      `
       SELECT s.track_id, t.title AS track_title, sr.role, sr.percentage, sr.actual_amount AS amount, s.tx_hash
       FROM settlement_recipients sr
       JOIN settlements s ON sr.settlement_id = s.id
       JOIN tracks t ON s.track_id = t.id
       WHERE UPPER(sr.wallet_address) = $1 AND sr.status = 'SETTLED'
-    `, [cleanWallet]);
+    `,
+      [cleanWallet]
+    );
 
     // Query tracks where wallet is a contributor in locked agreement
     const contributorTracks = await db.query<{
@@ -367,24 +379,30 @@ export class SettlementService {
       role: string;
       percentage: number;
       total_track_revenue: number;
-    }>(`
+    }>(
+      `
       SELECT a.track_id, t.title AS track_title, c.role, c.percentage,
              COALESCE((SELECT SUM(payment_amount) FROM music_passes WHERE track_id = a.track_id AND status = 'CONFIRMED'), 0) as total_track_revenue
       FROM split_contributors c
       JOIN split_agreements a ON c.agreement_id = a.id
       JOIN tracks t ON a.track_id = t.id
       WHERE UPPER(c.wallet_address) = $1 AND a.status = 'LOCKED'
-    `, [cleanWallet]);
+    `,
+      [cleanWallet]
+    );
 
-    const trackMap = new Map<string, {
-      track_id: string;
-      track_title: string;
-      role: string;
-      percentage: number;
-      pending: number;
-      settled: number;
-      latest_tx_hash: string | null;
-    }>();
+    const trackMap = new Map<
+      string,
+      {
+        track_id: string;
+        track_title: string;
+        role: string;
+        percentage: number;
+        pending: number;
+        settled: number;
+        latest_tx_hash: string | null;
+      }
+    >();
 
     for (const ct of contributorTracks) {
       const entitlement = (ct.total_track_revenue * ct.percentage) / 100;
@@ -443,13 +461,16 @@ export class SettlementService {
       id: string;
       title: string;
       total_revenue: number;
-    }>(`
+    }>(
+      `
       SELECT t.id, t.title,
              COALESCE((SELECT SUM(payment_amount) FROM music_passes WHERE track_id = t.id AND status = 'CONFIRMED'), 0) as total_revenue
       FROM tracks t
       JOIN artists a ON t.artist_id = a.id
       WHERE UPPER(a.wallet_address) = $1
-    `, [cleanWallet]);
+    `,
+      [cleanWallet]
+    );
 
     const tracks = [];
     let grandTotalRevenue = 0;
@@ -460,11 +481,14 @@ export class SettlementService {
       const isLocked = Boolean(activeSplit);
       const version = activeSplit ? activeSplit.agreement.version : 1;
 
-      const settledRow = await db.queryOne<{ settled: number }>(`
+      const settledRow = await db.queryOne<{ settled: number }>(
+        `
         SELECT COALESCE(SUM(gross_amount), 0) as settled
         FROM settlements
         WHERE track_id = $1 AND status = 'SETTLED'
-      `, [at.id]);
+      `,
+        [at.id]
+      );
 
       const settled = settledRow ? settledRow.settled : 0;
       const pending = Math.max(0, at.total_revenue - settled);
@@ -514,10 +538,9 @@ export class SettlementService {
     recipients: SettlementRecipient[];
   } | null> {
     const db = await getDb();
-    const settlement = await db.queryOne<Settlement>(
-      'SELECT * FROM settlements WHERE id = $1',
-      [settlementId]
-    );
+    const settlement = await db.queryOne<Settlement>('SELECT * FROM settlements WHERE id = $1', [
+      settlementId,
+    ]);
     if (!settlement) return null;
 
     const recipients = await db.query<SettlementRecipient>(
@@ -638,4 +661,3 @@ export class SettlementService {
 }
 
 export const settlementService = new SettlementService();
-

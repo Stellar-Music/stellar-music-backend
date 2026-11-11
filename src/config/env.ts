@@ -10,6 +10,10 @@ const envSchema = z.object({
   STREAMING_HMAC_SECRET: z.string().min(16).default('stellar_music_dev_secret_key_32chars_long!'),
   STELLAR_NETWORK: z.enum(['TESTNET', 'PUBLIC']).default('TESTNET'),
   HORIZON_URL: z.string().url().default('https://horizon-testnet.stellar.org'),
+  STELLAR_MUSIC_CONTRACT_ID: z
+    .string()
+    .default('CBUNX6PF4OOFGQ434IBVCLRBR6OBQOM5PTYUES7X6KSN2AIER6VMJK7K'),
+  SOROBAN_RPC_URL: z.string().url().default('https://soroban-testnet.stellar.org'),
   DATABASE_URL: z.string().optional(),
 });
 

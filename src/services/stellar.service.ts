@@ -11,6 +11,11 @@ export interface VerifiedPaymentResult {
   recipient: string;
 }
 
+export const STELLAR_MUSIC_CONTRACT_ID =
+  process.env.STELLAR_MUSIC_CONTRACT_ID ||
+  'CBUNX6PF4OOFGQ434IBVCLRBR6OBQOM5PTYUES7X6KSN2AIER6VMJK7K';
+export const SOROBAN_RPC_URL = process.env.SOROBAN_RPC_URL || 'https://soroban-testnet.stellar.org';
+
 export class StellarService {
   private endpoints: string[];
   private activeIndex: number = 0;
@@ -20,7 +25,8 @@ export class StellarService {
       this.endpoints = endpoints;
     } else {
       const primary = process.env.STELLAR_HORIZON_URL || 'https://horizon-testnet.stellar.org';
-      const fallback = process.env.STELLAR_HORIZON_FALLBACK_URL || 'https://rpc-testnet.stellar.org';
+      const fallback =
+        process.env.STELLAR_HORIZON_FALLBACK_URL || 'https://horizon-testnet.stellar.org';
       this.endpoints = [primary, fallback];
     }
   }
@@ -43,7 +49,9 @@ export class StellarService {
         if (res.status >= 500 && i < total - 1) {
           const prev = base;
           this.activeIndex = (this.activeIndex + 1) % total;
-          console.warn(`[StellarService] Horizon HTTP ${res.status}. Switching from ${prev} to ${this.endpoints[this.activeIndex]}`);
+          console.warn(
+            `[StellarService] Horizon HTTP ${res.status}. Switching from ${prev} to ${this.endpoints[this.activeIndex]}`
+          );
           continue;
         }
         return res;
@@ -51,7 +59,9 @@ export class StellarService {
         if (i < total - 1) {
           const prev = base;
           this.activeIndex = (this.activeIndex + 1) % total;
-          console.warn(`[StellarService] Horizon network error. Switching from ${prev} to ${this.endpoints[this.activeIndex]}`);
+          console.warn(
+            `[StellarService] Horizon network error. Switching from ${prev} to ${this.endpoints[this.activeIndex]}`
+          );
         }
       }
     }
@@ -109,7 +119,8 @@ export class StellarService {
     if (existingPass) {
       return {
         isValid: false,
-        error: 'TRANSACTION_ALREADY_CONSUMED: This transaction has already been used to purchase a pass.',
+        error:
+          'TRANSACTION_ALREADY_CONSUMED: This transaction has already been used to purchase a pass.',
         amount: 0,
         asset: '',
         ledger: 0,
@@ -206,10 +217,7 @@ export class StellarService {
 
     // 5. Verify source wallet matches expected purchaser
     const actualSender = matchedOp.from || tx.source_account;
-    if (
-      expectedPurchaser &&
-      actualSender.toUpperCase() !== expectedPurchaser.toUpperCase()
-    ) {
+    if (expectedPurchaser && actualSender.toUpperCase() !== expectedPurchaser.toUpperCase()) {
       return {
         isValid: false,
         error: `SENDER_MISMATCH: Payment source ${actualSender} does not match expected wallet ${expectedPurchaser}.`,
@@ -222,7 +230,7 @@ export class StellarService {
     }
 
     const verifiedAmount = parseFloat(matchedOp.amount);
-    const asset = matchedOp.asset_type === 'native' ? 'XLM' : (matchedOp.asset_code || 'XLM');
+    const asset = matchedOp.asset_type === 'native' ? 'XLM' : matchedOp.asset_code || 'XLM';
 
     // 6. Record verified transaction in blockchain_transactions table
     await db.execute(

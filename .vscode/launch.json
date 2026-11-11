@@ -21,11 +21,7 @@
       "request": "launch",
       "cwd": "${workspaceFolder}",
       "runtimeExecutable": "npx",
-      "runtimeArgs": [
-        "vitest",
-        "run",
-        "${relativeFile}"
-      ],
+      "runtimeArgs": ["vitest", "run", "${relativeFile}"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
     }

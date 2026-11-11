@@ -6,7 +6,10 @@ export interface ParsedRange {
   contentRangeHeader: string;
 }
 
-export function parseByteRange(rangeHeader: string | undefined, totalSize: number): ParsedRange | null {
+export function parseByteRange(
+  rangeHeader: string | undefined,
+  totalSize: number
+): ParsedRange | null {
   if (!rangeHeader || !rangeHeader.startsWith('bytes=')) {
     return null;
   }

@@ -86,7 +86,9 @@ export class SplitService {
 
       if (!wallet) throw new Error('INVALID_WALLET: Contributor wallet address is required.');
       if (!this.isValidStellarAddress(wallet)) {
-        throw new Error(`INVALID_STELLAR_ADDRESS: Address ${wallet} is not a valid Stellar public key.`);
+        throw new Error(
+          `INVALID_STELLAR_ADDRESS: Address ${wallet} is not a valid Stellar public key.`
+        );
       }
       if (seenWallets.has(wallet.toUpperCase())) {
         throw new Error(`DUPLICATE_CONTRIBUTOR: Wallet ${wallet} is listed more than once.`);
@@ -111,7 +113,9 @@ export class SplitService {
 
     // 3. Strict 100% check (tolerance 0.001 for floating point)
     if (Math.abs(totalPercentage - 100.0) > 0.001) {
-      throw new Error(`INVALID_TOTAL: Split allocation must total exactly 100.0%. Current total: ${totalPercentage.toFixed(2)}%.`);
+      throw new Error(
+        `INVALID_TOTAL: Split allocation must total exactly 100.0%. Current total: ${totalPercentage.toFixed(2)}%.`
+      );
     }
 
     // 4. Calculate version number
@@ -172,7 +176,17 @@ export class SplitService {
       await db.execute(
         `INSERT INTO split_contributors (id, agreement_id, wallet_address, display_name, role, percentage, share_basis_points, has_signed, signed_at)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-        [contribId, agreementId, c.wallet_address, c.display_name, c.role, c.percentage, c.share_basis_points, hasSigned, signedAt]
+        [
+          contribId,
+          agreementId,
+          c.wallet_address,
+          c.display_name,
+          c.role,
+          c.percentage,
+          c.share_basis_points,
+          hasSigned,
+          signedAt,
+        ]
       );
 
       if (isCreator) {
@@ -203,7 +217,12 @@ export class SplitService {
         "UPDATE split_agreements SET status = 'LOCKED', locked_at = $1 WHERE id = $2",
         [now, agreementId]
       );
-      await this.recordEvent(agreementId, 'LOCKED', createdByWallet, 'All contributors signed; agreement locked.');
+      await this.recordEvent(
+        agreementId,
+        'LOCKED',
+        createdByWallet,
+        'All contributors signed; agreement locked.'
+      );
     } else {
       await this.recordEvent(
         agreementId,
@@ -359,10 +378,11 @@ export class SplitService {
     let newStatus: SplitAgreementStatus = allSigned ? 'LOCKED' : 'PARTIALLY_SIGNED';
     let lockedAt = allSigned ? now : null;
 
-    await db.execute(
-      'UPDATE split_agreements SET status = $1, locked_at = $2 WHERE id = $3',
-      [newStatus, lockedAt, agreementId]
-    );
+    await db.execute('UPDATE split_agreements SET status = $1, locked_at = $2 WHERE id = $3', [
+      newStatus,
+      lockedAt,
+      agreementId,
+    ]);
 
     if (allSigned) {
       await this.recordEvent(
@@ -393,10 +413,9 @@ export class SplitService {
       throw new Error('AGREEMENT_LOCKED: Cannot reject a locked agreement.');
     }
 
-    await db.execute(
-      "UPDATE split_agreements SET status = 'REJECTED' WHERE id = $1",
-      [agreementId]
-    );
+    await db.execute("UPDATE split_agreements SET status = 'REJECTED' WHERE id = $1", [
+      agreementId,
+    ]);
 
     await this.recordEvent(
       agreementId,

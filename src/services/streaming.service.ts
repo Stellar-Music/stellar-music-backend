@@ -89,7 +89,10 @@ export class StreamingService {
 
     const now = new Date().toISOString();
     // Default heartbeat increment is 10 seconds or provided validated offset
-    const newDuration = durationSeconds !== undefined ? Math.max(session.duration, durationSeconds) : session.duration + 10;
+    const newDuration =
+      durationSeconds !== undefined
+        ? Math.max(session.duration, durationSeconds)
+        : session.duration + 10;
 
     await db.execute(
       `UPDATE streaming_sessions
@@ -120,7 +123,8 @@ export class StreamingService {
     }
 
     const now = new Date().toISOString();
-    const duration = finalDuration !== undefined ? Math.max(session.duration, finalDuration) : session.duration;
+    const duration =
+      finalDuration !== undefined ? Math.max(session.duration, finalDuration) : session.duration;
 
     await db.execute(
       `UPDATE streaming_sessions
@@ -139,7 +143,9 @@ export class StreamingService {
   /**
    * Retrieve streaming sessions for audits
    */
-  async getSessions(options: { trackId?: string; wallet?: string } = {}): Promise<StreamingSession[]> {
+  async getSessions(
+    options: { trackId?: string; wallet?: string } = {}
+  ): Promise<StreamingSession[]> {
     const db = await getDb();
     let query = 'SELECT * FROM streaming_sessions WHERE 1=1';
     const params: any[] = [];

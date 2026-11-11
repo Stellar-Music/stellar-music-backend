@@ -46,7 +46,9 @@ app.use(apiLimiter);
 // Correlation tracing ID injection
 app.use(requestIdMiddleware);
 
-const allowedOrigins = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',').map(s => s.trim()) : '*';
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map((s) => s.trim())
+  : '*';
 app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json());
 
@@ -60,7 +62,8 @@ app.use('/uploads', (req, res, next) => {
     return res.status(403).json({
       success: false,
       error: 'DIRECT_AUDIO_ACCESS_FORBIDDEN',
-      message: 'Direct audio file downloads are prohibited. Audio must be streamed via authenticated streaming endpoints.',
+      message:
+        'Direct audio file downloads are prohibited. Audio must be streamed via authenticated streaming endpoints.',
     });
   }
   next();

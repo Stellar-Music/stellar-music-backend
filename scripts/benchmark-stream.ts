@@ -31,7 +31,9 @@ export async function profileStreamLatency(params: {
 
   const latencies: number[] = [];
 
-  console.log(`[Stream Benchmark] Starting latency profile against ${host}:${port} (${iterations} iterations)...`);
+  console.log(
+    `[Stream Benchmark] Starting latency profile against ${host}:${port} (${iterations} iterations)...`
+  );
 
   for (let i = 0; i < iterations; i++) {
     const start = performance.now();

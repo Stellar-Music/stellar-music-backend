@@ -54,10 +54,9 @@ artistRouter.post('/', async (req: Request, res: Response) => {
     }
 
     const db = await getDb();
-    const existing = await db.queryOne<Artist>(
-      'SELECT * FROM artists WHERE wallet_address = $1',
-      [wallet_address]
-    );
+    const existing = await db.queryOne<Artist>('SELECT * FROM artists WHERE wallet_address = $1', [
+      wallet_address,
+    ]);
     if (existing) {
       return res.json({ success: true, data: existing });
     }

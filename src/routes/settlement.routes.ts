@@ -29,7 +29,10 @@ settlementRouter.get('/settlements/export', async (req: Request, res: Response) 
     const csvData = await settlementService.exportSettlementsCsv(trackId);
 
     res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', 'attachment; filename="stellar-music-settlements-export.csv"');
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename="stellar-music-settlements-export.csv"'
+    );
     res.status(200).send(csvData);
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message });
@@ -63,10 +66,16 @@ settlementRouter.post('/settlements/track/:trackId', async (req: Request, res: R
     const { amount, pool_id } = req.body;
 
     if (!amount || amount <= 0) {
-      return res.status(400).json({ success: false, error: 'Valid settlement amount is required.' });
+      return res
+        .status(400)
+        .json({ success: false, error: 'Valid settlement amount is required.' });
     }
 
-    const result = await settlementService.executeTrackSettlement(trackId, parseFloat(amount), pool_id);
+    const result = await settlementService.executeTrackSettlement(
+      trackId,
+      parseFloat(amount),
+      pool_id
+    );
     res.status(201).json({
       success: true,
       message: 'Settlement executed and recorded in protocol ledger.',
@@ -202,7 +211,9 @@ const sseHandler = (req: Request, res: Response) => {
   res.flushHeaders();
 
   // Send initial connected event
-  res.write(`data: ${JSON.stringify({ type: 'CONNECTED', timestamp: new Date().toISOString() })}\n\n`);
+  res.write(
+    `data: ${JSON.stringify({ type: 'CONNECTED', timestamp: new Date().toISOString() })}\n\n`
+  );
 
   // Keepalive ping to prevent proxy/load balancer timeouts
   const pingInterval = parseInt(process.env.SSE_PING_INTERVAL_MS || '15000', 10);

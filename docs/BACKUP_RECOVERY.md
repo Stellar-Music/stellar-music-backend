@@ -16,6 +16,7 @@ The `stellar-music-backend` stores off-chain metadata, split proposals, and sett
 ## 3. Automated Backup Procedures
 
 ### Daily Full Snapshot (`pg_dump`)
+
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
@@ -33,6 +34,7 @@ find "$BACKUP_DIR" -type f -name "*.sql.gz" -mtime +30 -delete
 ```
 
 ### Point-in-Time Recovery (WAL Archiving)
+
 In production, Postgres Write-Ahead Logs (WAL) are shipped to encrypted off-site object storage (AWS S3 / Google Cloud Storage) every 60 seconds, enabling transaction rollback to any exact second prior to an incident.
 
 ---

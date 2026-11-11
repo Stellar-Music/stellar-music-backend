@@ -90,7 +90,9 @@ export async function benchmarkApiEndpoints(params: {
   console.log('\n| Endpoint | Method | Mean Latency | p95 Latency | Health Status |');
   console.log('| :--- | :--- | :--- | :--- | :--- |');
   for (const b of results) {
-    console.log(`| \`${b.endpoint}\` | ${b.method} | ${b.meanMs} ms | ${b.p95Ms} ms | **${b.status}** |`);
+    console.log(
+      `| \`${b.endpoint}\` | ${b.method} | ${b.meanMs} ms | ${b.p95Ms} ms | **${b.status}** |`
+    );
   }
   console.log('\n✅ All evaluated endpoints within 300ms SLA threshold.\n');
 

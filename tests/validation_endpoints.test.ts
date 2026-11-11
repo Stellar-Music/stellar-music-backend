@@ -4,9 +4,7 @@ import { app } from '../src/app.js';
 
 describe('API Route Validation Tests', () => {
   it('rejects POST /api/streams/start with missing listener_wallet', async () => {
-    const res = await request(app)
-      .post('/api/streams/start')
-      .send({ track_id: 't1' });
+    const res = await request(app).post('/api/streams/start').send({ track_id: 't1' });
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
   });

@@ -13,20 +13,14 @@ describe('StellarService Failover RPC Pool', () => {
   });
 
   it('initializes with primary and fallback endpoints', () => {
-    const service = new StellarService([
-      'https://primary.horizon',
-      'https://fallback.horizon',
-    ]);
+    const service = new StellarService(['https://primary.horizon', 'https://fallback.horizon']);
     const status = service.getRpcStatus();
     expect(status.activeEndpoint).toBe('https://primary.horizon');
     expect(status.endpoints).toEqual(['https://primary.horizon', 'https://fallback.horizon']);
   });
 
   it('fetches transaction from primary server when healthy', async () => {
-    const service = new StellarService([
-      'https://primary.horizon',
-      'https://fallback.horizon',
-    ]);
+    const service = new StellarService(['https://primary.horizon', 'https://fallback.horizon']);
 
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
@@ -41,10 +35,7 @@ describe('StellarService Failover RPC Pool', () => {
   });
 
   it('fails over to secondary server when primary throws a 503 error', async () => {
-    const service = new StellarService([
-      'https://primary.horizon',
-      'https://fallback.horizon',
-    ]);
+    const service = new StellarService(['https://primary.horizon', 'https://fallback.horizon']);
 
     let callCount = 0;
     global.fetch = vi.fn().mockImplementation(async (url: string) => {
@@ -66,10 +57,7 @@ describe('StellarService Failover RPC Pool', () => {
   });
 
   it('fails over to secondary server on network timeout/connection exception', async () => {
-    const service = new StellarService([
-      'https://primary.horizon',
-      'https://fallback.horizon',
-    ]);
+    const service = new StellarService(['https://primary.horizon', 'https://fallback.horizon']);
 
     let callCount = 0;
     global.fetch = vi.fn().mockImplementation(async (url: string) => {

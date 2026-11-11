@@ -93,10 +93,12 @@ export class PassService {
     return await db.queryOne<MusicPass>('SELECT * FROM music_passes WHERE id = $1', [id]);
   }
 
-  async getPasses(options: {
-    wallet?: string;
-    trackId?: string;
-  } = {}): Promise<MusicPass[]> {
+  async getPasses(
+    options: {
+      wallet?: string;
+      trackId?: string;
+    } = {}
+  ): Promise<MusicPass[]> {
     const db = await getDb();
     let query = 'SELECT * FROM music_passes WHERE 1=1';
     const params: any[] = [];

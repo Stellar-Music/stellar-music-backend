@@ -1,14 +1,17 @@
 import { z } from 'zod';
 
 export const SplitRecipientSchema = z.object({
-  recipient: z.string().regex(/^G[A-Z2-7]{55}$/, 'Must be a valid Stellar public key starting with G'),
+  recipient: z
+    .string()
+    .regex(/^G[A-Z2-7]{55}$/, 'Must be a valid Stellar public key starting with G'),
   role: z.enum(['artist', 'producer', 'songwrtr', 'engineer', 'curator']),
   share_basis_points: z.number().int().min(1).max(10000),
 });
 
 export const CreateSplitSchema = z.object({
   track_id: z.string().min(1, 'Track ID is required'),
-  recipients: z.array(SplitRecipientSchema)
+  recipients: z
+    .array(SplitRecipientSchema)
     .min(1, 'Must specify at least one recipient')
     .max(25, 'Cannot exceed 25 collaborators')
     .refine(

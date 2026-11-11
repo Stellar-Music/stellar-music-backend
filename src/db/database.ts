@@ -95,7 +95,9 @@ export async function getDb(): Promise<IDatabase> {
       dbInstance = pgDb;
       return dbInstance;
     } catch (err: any) {
-      console.warn(`⚠️ PostgreSQL connection failed (${err.message}). Falling back to local SQLite engine.`);
+      console.warn(
+        `⚠️ PostgreSQL connection failed (${err.message}). Falling back to local SQLite engine.`
+      );
     }
   }
 

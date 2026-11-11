@@ -59,13 +59,17 @@ src/
 ## 3. Core Design Principles
 
 ### 3.1 Strict Integer Stroop Math
+
 To prevent floating-point rounding errors common in financial applications, all monetary accounting (tips, streaming royalties, split distributions) is calculated strictly in **integer stroops** (1 XLM = 10,000,000 stroops).
+
 - A 0-stroop invariant test confirms that `sum(individual_splits) == total_pool` across all splits without loss.
 
 ### 3.2 Defensive Horizon Failover
+
 Stellar Horizon nodes occasionally experience network jitter or rate limits. The `HorizonRpcPool` automatically cycles between primary and backup Horizon instances, maintaining continuous transaction inspection.
 
 ### 3.3 Stateless Stream Authorization
+
 Audio chunks are protected by short-lived HMAC-SHA256 signatures (`generateStreamToken`). The backend validates incoming tokens in `O(1)` time without performing a database lookup per chunk, preserving low-latency playback under high concurrency.
 
 ---

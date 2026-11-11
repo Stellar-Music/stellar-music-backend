@@ -37,7 +37,8 @@ export async function authStreamMiddleware(
     }
     res.status(401).json({
       success: false,
-      error: 'Missing streaming access token. Please provide token via query or authorization header.',
+      error:
+        'Missing streaming access token. Please provide token via query or authorization header.',
     });
     return;
   }

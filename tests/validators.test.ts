@@ -20,7 +20,9 @@ describe('Zod Schema Validators Tests', () => {
 
     it('rejects missing title or negative price', () => {
       expect(CreateTrackSchema.safeParse({ title: '', artist_id: 'a1' }).success).toBe(false);
-      expect(CreateTrackSchema.safeParse({ title: 'Song', artist_id: 'a1', price: -1 }).success).toBe(false);
+      expect(
+        CreateTrackSchema.safeParse({ title: 'Song', artist_id: 'a1', price: -1 }).success
+      ).toBe(false);
     });
   });
 
@@ -69,8 +71,12 @@ describe('Zod Schema Validators Tests', () => {
     });
 
     it('rejects zero or negative gross amount', () => {
-      expect(ExecuteSettlementSchema.safeParse({ track_id: 't1', gross_amount: 0 }).success).toBe(false);
-      expect(ExecuteSettlementSchema.safeParse({ track_id: 't1', gross_amount: -500 }).success).toBe(false);
+      expect(ExecuteSettlementSchema.safeParse({ track_id: 't1', gross_amount: 0 }).success).toBe(
+        false
+      );
+      expect(
+        ExecuteSettlementSchema.safeParse({ track_id: 't1', gross_amount: -500 }).success
+      ).toBe(false);
     });
   });
 });

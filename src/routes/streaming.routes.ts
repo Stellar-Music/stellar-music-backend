@@ -32,7 +32,8 @@ streamingRouter.post('/token', async (req: Request, res: Response) => {
         return res.status(403).json({
           success: false,
           error: 'MUSIC_PASS_REQUIRED',
-          message: 'A confirmed Music Pass is required to generate a streaming token for this track.',
+          message:
+            'A confirmed Music Pass is required to generate a streaming token for this track.',
           track_id,
           price: access.price,
         });
@@ -59,44 +60,49 @@ streamingRouter.post('/token', async (req: Request, res: Response) => {
  * GET /api/streams/:trackId/play
  * Stream audio chunks with HTTP 206 Partial Content and Range header support
  */
-streamingRouter.get('/:trackId/play', authStreamMiddleware, mediaCacheMiddleware(), async (req: Request, res: Response) => {
-  try {
-    const { trackId } = req.params;
-    const track = await trackService.getTrackById(trackId);
-    if (!track) {
-      return res.status(404).json({ success: false, error: 'Track not found' });
+streamingRouter.get(
+  '/:trackId/play',
+  authStreamMiddleware,
+  mediaCacheMiddleware(),
+  async (req: Request, res: Response) => {
+    try {
+      const { trackId } = req.params;
+      const track = await trackService.getTrackById(trackId);
+      if (!track) {
+        return res.status(404).json({ success: false, error: 'Track not found' });
+      }
+
+      const audioPath = path.isAbsolute(track.audio_reference)
+        ? track.audio_reference
+        : path.join(process.cwd(), track.audio_reference);
+
+      if (!fs.existsSync(audioPath)) {
+        return res.status(404).json({ success: false, error: 'Audio file not found on disk' });
+      }
+
+      const stat = fs.statSync(audioPath);
+      const rangeHeader = req.headers.range;
+      const range = parseByteRange(rangeHeader, stat.size);
+
+      if (range) {
+        res.status(206);
+        res.setHeader('Content-Range', range.contentRangeHeader);
+        res.setHeader('Content-Length', range.chunkLength);
+        res.setHeader('Content-Type', 'audio/mpeg');
+        const stream = fs.createReadStream(audioPath, { start: range.start, end: range.end });
+        stream.pipe(res);
+      } else {
+        res.status(200);
+        res.setHeader('Content-Length', stat.size);
+        res.setHeader('Content-Type', 'audio/mpeg');
+        const stream = fs.createReadStream(audioPath);
+        stream.pipe(res);
+      }
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
     }
-
-    const audioPath = path.isAbsolute(track.audio_reference)
-      ? track.audio_reference
-      : path.join(process.cwd(), track.audio_reference);
-
-    if (!fs.existsSync(audioPath)) {
-      return res.status(404).json({ success: false, error: 'Audio file not found on disk' });
-    }
-
-    const stat = fs.statSync(audioPath);
-    const rangeHeader = req.headers.range;
-    const range = parseByteRange(rangeHeader, stat.size);
-
-    if (range) {
-      res.status(206);
-      res.setHeader('Content-Range', range.contentRangeHeader);
-      res.setHeader('Content-Length', range.chunkLength);
-      res.setHeader('Content-Type', 'audio/mpeg');
-      const stream = fs.createReadStream(audioPath, { start: range.start, end: range.end });
-      stream.pipe(res);
-    } else {
-      res.status(200);
-      res.setHeader('Content-Length', stat.size);
-      res.setHeader('Content-Type', 'audio/mpeg');
-      const stream = fs.createReadStream(audioPath);
-      stream.pipe(res);
-    }
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
   }
-});
+);
 
 /**
  * POST /api/streams/start

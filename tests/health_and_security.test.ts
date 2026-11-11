@@ -33,9 +33,7 @@ describe('Health and Security Middleware Tests', () => {
 
   it('preserves incoming x-request-id if provided by client', async () => {
     const customId = 'test-trace-id-12345';
-    const res = await request(app)
-      .get('/api/health')
-      .set('x-request-id', customId);
+    const res = await request(app).get('/api/health').set('x-request-id', customId);
     expect(res.headers['x-request-id']).toBe(customId);
   });
 

@@ -72,7 +72,7 @@ describe('Level 1 Financial Integrity: 0-Stroop Loss Invariant Suite', () => {
         expect(share).toBeGreaterThanOrEqual(0);
       }
     }
-  });
+  }, 30000);
 
   it('guarantees exact stroop conservation for uneven thirds (33.33%, 33.33%, 33.34%)', () => {
     const contributors: ContributorBasis[] = [

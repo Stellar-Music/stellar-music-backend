@@ -19,11 +19,7 @@ splitRouter.post('/tracks/:trackId/splits', async (req: Request, res: Response) 
       });
     }
 
-    const result = await splitService.createAgreement(
-      trackId,
-      created_by_wallet,
-      contributors
-    );
+    const result = await splitService.createAgreement(trackId, created_by_wallet, contributors);
 
     res.status(201).json({
       success: true,
@@ -100,7 +96,9 @@ splitRouter.post('/splits/:id/sign', async (req: Request, res: Response) => {
     const result = await splitService.signAgreement(id, contributor_wallet, signature_ref);
     res.json({
       success: true,
-      message: result.isLocked ? 'All signatures collected! Agreement LOCKED.' : 'Approval recorded.',
+      message: result.isLocked
+        ? 'All signatures collected! Agreement LOCKED.'
+        : 'Approval recorded.',
       data: result,
     });
   } catch (err: any) {
@@ -177,7 +175,11 @@ splitRouter.post('/splits/:id/lock', async (req: Request, res: Response) => {
     if (!data) return res.status(404).json({ success: false, error: 'Agreement not found' });
 
     if (data.agreement.status === 'LOCKED') {
-      return res.json({ success: true, message: 'Agreement already LOCKED.', data: data.agreement });
+      return res.json({
+        success: true,
+        message: 'Agreement already LOCKED.',
+        data: data.agreement,
+      });
     }
 
     const allSigned = data.contributors.every((c) => Boolean(c.has_signed));
